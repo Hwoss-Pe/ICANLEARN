@@ -17,7 +17,7 @@ public interface UserMapper {
     @Select("select * from user where account = #{account} and password = #{password}")
     User login(User user);
 //    注册
-    @Insert("INSERT INTO user (account, password) VALUES (#{account},#{password}) ")
+    @Insert("INSERT INTO user (account, password,username) VALUES (#{account},#{password},#{username}) ")
     void register(User user);
 //    id获取整个对象
     @Select("select * from user where id = #{id}")

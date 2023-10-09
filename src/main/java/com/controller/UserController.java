@@ -78,6 +78,7 @@ public class UserController {
         else if(!(isElevenDigits(user.getAccount()))){
             return Result.error(Code.REGISTER_ERR,"手机号格式错误");
         }
+
         String uuid = UUID.toString().replaceAll("-", "");
         String username = uuid.substring(0, 8);
         user.setUsername(username);

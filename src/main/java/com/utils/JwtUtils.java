@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+import java.beans.Transient;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
@@ -17,6 +18,7 @@ public class JwtUtils {
      * @param claims JWT第二部分负载payload中存储的内容
      * @return jwt令牌
      */
+
     public static String generateJwt(Map<String,Object> claims){
         return Jwts.builder()
                 .addClaims(claims)
@@ -38,7 +40,7 @@ public class JwtUtils {
                 .getBody();
     }
 
-    public Integer getId(String jwt){
+    public static  Integer getId(String jwt){
         Claims claims = JwtUtils.parseJwt(jwt);
         return (Integer)claims.get("id");
     }

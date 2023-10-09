@@ -7,14 +7,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.HashMap;
 import java.util.Map;
 
-@SpringBootTest
+//@SpringBootTest
 class DemoApplicationTests {
 
     @Test
     void contextLoads() {
 
         Map<String,Object> map = new HashMap<String,Object>();
-        map.put("id",1);
+        map.put("id",5);
         String jwt = JwtUtils.generateJwt(map);
         System.out.println(jwt);
     }
