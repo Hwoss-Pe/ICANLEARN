@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChatEach {
+//    一对一聊天
     private List<ChatRecords> senders;
     private List<ChatRecords> recipients;
 }
