@@ -11,11 +11,11 @@ import java.util.List;
 public interface MBTITestMapper {
 
     //按TF SN JP EI的顺序排序
-    @Select("select * from question order by type desc")
+    @Select("select * from mbti_question  order by type desc")
     List<Question> selectQuestions();
 
     //计算每个type对应题目的个数
-    @Select("SELECT type, COUNT(*) AS count FROM question GROUP BY type ORDER BY type DESC")
+    @Select("SELECT type, COUNT(*) AS count FROM mbti_question  GROUP BY type ORDER BY type DESC")
     List<TypeCount> selectTypeCount();
 
     @Insert("insert into mbti_score(user_id, E, I, S, N, T, F, J, P, result) " +

@@ -60,6 +60,8 @@ public class Code {
     public static final Integer QUERY_WAITING_ERR = 10420;
     public static final Integer QUERY_FRIEND_OK = 20431;
     public static final Integer QUERY_FRIEND_ERR = 10430;
-
+//   获取霍兰德题目
+    public static final Integer HLD_TEST_OK = 20341;
+    public static final Integer HLD_TEST_ERR = 10340;
 
 }
