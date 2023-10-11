@@ -13,24 +13,29 @@ public class Result {
     private Object data; //返回的数据
 
     //增删改 成功响应
-    public static Result success(){
-        return new Result(1,"success",null);
+    public static Result success() {
+        return new Result(1, "success", null);
     }
-    public static Result success(Integer code){
-        return new Result(code,"success",null);
+
+    public static Result success(Integer code) {
+        return new Result(code, "success", null);
     }
-    public static Result success(Integer code,Object data){
-        return new Result(code,"success",data);
+
+    public static Result success(Integer code, Object data) {
+        return new Result(code, "success", data);
     }
+
     //查询 成功响应
-    public static Result success(Object data){
-        return new Result(1,"success",data);
+    public static Result success(Object data) {
+        return new Result(1, "success", data);
     }
+
     //失败响应
-    public static Result error(String msg){
-        return new Result(0,msg,null);
+    public static Result error(String msg) {
+        return new Result(0, msg, null);
     }
-    public static Result error(Integer code,String msg){
-        return new Result(0,msg,null);
+
+    public static Result error(Integer code, String msg) {
+        return new Result(code, msg, null);
     }
 }
