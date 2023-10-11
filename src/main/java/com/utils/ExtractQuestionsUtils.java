@@ -1,15 +1,15 @@
 package com.utils;
 
-import com.pojo.Question;
+import com.pojo.MBTIQuestion;
 import com.pojo.TypeCount;
 
 import java.util.*;
 
 public class ExtractQuestionsUtils {
 
-    public static List<Question> extractQuestions(List<Question> list, List<TypeCount> typeCounts, Integer num) {
+    public static List<MBTIQuestion> extractQuestions(List<MBTIQuestion> list, List<TypeCount> typeCounts, Integer num) {
         //存放最后题目的数组
-        List<Question> newList = new ArrayList<>();
+        List<MBTIQuestion> newList = new ArrayList<>();
         //计算总题目数
         Integer total = 0;
         for (TypeCount typeCount : typeCounts) {
@@ -28,7 +28,7 @@ public class ExtractQuestionsUtils {
 //
         for (Map.Entry<String, Integer> entry : typeCountMap.entrySet()) {
             Integer value = entry.getValue();
-            List<Question> subset = getSubset(list, index, index + value -1, count);
+            List<MBTIQuestion> subset = getSubset(list, index, index + value -1, count);
             newList.addAll(subset);
             index += value - 1;//更新开始索引
         }
@@ -42,10 +42,10 @@ public class ExtractQuestionsUtils {
 
 
 //    采用一个新List对原来的List乱序后返回切割后的List
-    private static List<Question> getSubset(List<Question> originalList, int startIndex, int endIndex, int count) {
+    private static List<MBTIQuestion> getSubset(List<MBTIQuestion> originalList, int startIndex, int endIndex, int count) {
         // 创建一个用于随机排序的子列表
-        List<Question> subList = originalList.subList(startIndex, endIndex);
-        List<Question> shuffledList = new ArrayList<>(subList);
+        List<MBTIQuestion> subList = originalList.subList(startIndex, endIndex);
+        List<MBTIQuestion> shuffledList = new ArrayList<>(subList);
 
         // 使用Collections类的shuffle方法随机排序子列表
         Collections.shuffle(shuffledList);

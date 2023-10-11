@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Question {
+public class MBTIQuestion {
     private Integer id;
     private String content;
     private String AAnswer;

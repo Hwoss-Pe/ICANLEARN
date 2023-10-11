@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TestReport {
+public class MBTITestReport {
     private String mbtiName;//mbti
     private String abbreviation;//简称
     private String briefIntroduction;//简介

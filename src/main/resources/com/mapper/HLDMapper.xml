@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.HLDMapper">
+
+
+    <select id="getHLDTestReport" resultType="com.pojo.HLDTestReport">
+        select type_name,type, common_character, typical_job from hld_info
+        where type in
+        <foreach collection="types" item="type" separator="," open="(" close=")">
+            #{type}
+        </foreach>
+    </select>
+
+</mapper>

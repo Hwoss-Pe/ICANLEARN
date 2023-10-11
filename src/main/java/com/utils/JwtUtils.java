@@ -40,7 +40,7 @@ public class JwtUtils {
                 .getBody();
     }
 
-    public Integer getId(String jwt) {
+    public static Integer getId(String jwt) {
         Claims claims = JwtUtils.parseJwt(jwt);
         return (Integer) claims.get("id");
     }

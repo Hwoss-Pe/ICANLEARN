@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TestScore {
+public class MBTITestScore {
     private Integer id;
     private Integer userId;
     private Integer E = 0;
