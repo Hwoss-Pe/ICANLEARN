@@ -63,5 +63,15 @@ public class Code {
 //   获取霍兰德题目
     public static final Integer HLD_TEST_OK = 20341;
     public static final Integer HLD_TEST_ERR = 10340;
+    //返回霍兰德测试结果
+    public static final Integer HLD_REPORT_OK = 20351;
+    public static final Integer HLD_REPORT_ERR = 10350;
 
+    //返回Disc测试结果
+    public static final Integer DISC_TEST_OK = 20351;
+    public static final Integer DISC_TEST_ERR = 10350;
+
+    //返回Disc测试结果
+    public static final Integer DISC_REPORT_OK = 20361;
+    public static final Integer DISC_REPORT_ERR = 10360;
 }

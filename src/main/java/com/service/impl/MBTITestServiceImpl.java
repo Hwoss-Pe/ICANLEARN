@@ -19,9 +19,9 @@ public class MBTITestServiceImpl implements MBTITestService {
     private MBTITestMapper mbtiTestMapper;
 
     @Override
-    public List<Question> getQuestionsByQNum(Integer num) {
+    public List<MBTIQuestion> getQuestionsByQNum(Integer num) {
 
-        List<Question> list =  mbtiTestMapper.selectQuestions();
+        List<MBTIQuestion> list =  mbtiTestMapper.selectQuestions();
 
         List<TypeCount> typeCounts = mbtiTestMapper.selectTypeCount();
 
@@ -31,7 +31,7 @@ public class MBTITestServiceImpl implements MBTITestService {
 
     @Override
     public MBTIResult getTestResult(String jwt, Map<Integer, String> map) {
-        TestScore score = new TestScore();
+        MBTITestScore score = new MBTITestScore();
         //解析jwt
         Claims claims = JwtUtils.parseJwt(jwt);
         Integer id = (Integer) claims.get("id");
@@ -39,18 +39,18 @@ public class MBTITestServiceImpl implements MBTITestService {
         score.setUserId(id);
 
         //获取题库
-        List<Question> questions = mbtiTestMapper.selectQuestions();
+        List<MBTIQuestion> MBTIQuestions = mbtiTestMapper.selectQuestions();
 
         //是否可以优化？
         //遍历题库 计算
-        for (Question question : questions) {
-            if (map.containsKey(question.getId())){
-                String value = map.get(question.getId());
+        for (MBTIQuestion MBTIQuestion : MBTIQuestions) {
+            if (map.containsKey(MBTIQuestion.getId())){
+                String value = map.get(MBTIQuestion.getId());
                 String type = "";
                 if ("A".equals(value)){
-                    type = question.getAType();
+                    type = MBTIQuestion.getAType();
                 }else if ("B".equals(value)){
-                    type = question.getBType();
+                    type = MBTIQuestion.getBType();
                 }
                 score.add(type);
             }
@@ -72,9 +72,9 @@ public class MBTITestServiceImpl implements MBTITestService {
     }
 
     @Override
-    public TestReport getTestReport(String mbti) {
+    public MBTITestReport getTestReport(String mbti) {
 
-        TestReport testReport = mbtiTestMapper.selectReportByMBTI(mbti);
+        MBTITestReport MBTITestReport = mbtiTestMapper.selectReportByMBTI(mbti);
 
         List<MBTIIntro> list = mbtiTestMapper.selectIntro();
 
@@ -89,19 +89,19 @@ public class MBTITestServiceImpl implements MBTITestService {
         for (MBTIIntro mbtiIntro : list) {
             String type = mbtiIntro.getType();
             if (split[0].equalsIgnoreCase(type)){
-                testReport.setEITypeIntroduction(mbtiIntro.getIntro());
+                MBTITestReport.setEITypeIntroduction(mbtiIntro.getIntro());
             }
             if (split[1].equalsIgnoreCase(type)){
-                testReport.setSNTypeIntroduction(mbtiIntro.getIntro());
+                MBTITestReport.setSNTypeIntroduction(mbtiIntro.getIntro());
             }
             if (split[2].equalsIgnoreCase(type)){
-                testReport.setTFTypeIntroduction(mbtiIntro.getIntro());
+                MBTITestReport.setTFTypeIntroduction(mbtiIntro.getIntro());
             }
             if (split[3].equalsIgnoreCase(type)){
-                testReport.setJPTypeIntroduction(mbtiIntro.getIntro());
+                MBTITestReport.setJPTypeIntroduction(mbtiIntro.getIntro());
             }
         }
 
-        return testReport;
+        return MBTITestReport;
     }
 }
