@@ -2,9 +2,9 @@ package com.controller;
 
 import com.service.MBTITestService;
 import com.pojo.MBTIResult;
-import com.pojo.Question;
+import com.pojo.MBTIQuestion;
 import com.pojo.Result;
-import com.pojo.TestReport;
+import com.pojo.MBTITestReport;
 import com.utils.Code;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class MBTITestController {
     public Result getMBTIQuestions(@PathVariable Integer num) {
         log.info("题目的个数:{}", num);
         try {
-            List<Question> list = mbtiTestService.getQuestionsByQNum(num);
+            List<MBTIQuestion> list = mbtiTestService.getQuestionsByQNum(num);
             return Result.success(Code.MBTI_QUESTION_OK, list);
         } catch (Exception e) {
             log.info("MBTI获取题目出错:{}", e.getMessage());
@@ -63,8 +63,8 @@ public class MBTITestController {
     public Result getMBTITestReport(@PathVariable String mbti) {
         try {
             log.info("获取mbti报告：{}",mbti);
-            TestReport testReport = mbtiTestService.getTestReport(mbti);
-            return Result.success(Code.MBTI_REPORT_OK,testReport);
+            MBTITestReport MBTITestReport = mbtiTestService.getTestReport(mbti);
+            return Result.success(Code.MBTI_REPORT_OK, MBTITestReport);
         } catch (Exception e) {
             log.info("MBTI获取报告出错:{}", e.getMessage());
             return Result.error(Code.MBTI_REPORT_ERR, "获取报告出错");

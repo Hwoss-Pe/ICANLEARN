@@ -31,6 +31,6 @@ public class Result {
         return new Result(0,msg,null);
     }
     public static Result error(Integer code,String msg){
-        return new Result(0,msg,null);
+        return new Result(code,msg,null);
     }
 }
