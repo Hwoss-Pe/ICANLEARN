@@ -7,10 +7,12 @@ import com.pojo.VerticalUser;
 import com.service.UserService;
 import com.utils.Code;
 import com.utils.JwtUtils;
+import com.utils.RedisConstant;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -26,6 +28,8 @@ public class UserController {
     private UserService userService;
     @Autowired
     private HttpServletRequest req;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
 
     @PostMapping("/login")
@@ -52,32 +56,34 @@ public class UserController {
         String code = verticaluser.getCode();
         User user = verticaluser.getUser();
 
-        log.info("User: " + user.getId() + " is  registering in");
-        String factCode = CaptchaController.cache.get(UUID);
+        log.info("UUID: {} , code:{} ,user:{}",UUID,code,user);
+//        String factCode = CaptchaController.cache.get(UUID);
 
-        if (code == null) {
-            return Result.error(Code.REGISTER_ERR, "请输入验证码");
-        }
-
-        Long oldTime = CaptchaController.expire.get(UUID);
-        if (oldTime == null) {
-            oldTime = System.currentTimeMillis();
-        }
-
-        long newTime = System.currentTimeMillis();
-//        前端响应提示
-        if (newTime - oldTime > 1200000) {
-            return Result.error(Code.VERTICAL_LOGIN_ERR, "验证码过期");
-        } else if (!(factCode.equals(code))) {
+        if (!redisTemplate.hasKey(RedisConstant.CAPTCHA_CODE_ID + UUID)){
             return Result.error(Code.VERTICAL_LOGIN_ERR, "请刷新验证码");
-        } else if (!isAtLeastEightCharacters(user.getPassword())) {
+        }
+
+        Long expireTime = (Long) redisTemplate.opsForHash().get(RedisConstant.CAPTCHA_CODE_ID + UUID, code);
+
+
+        if (expireTime == null) {
+            return Result.error(Code.REGISTER_ERR, "验证码错误");
+        }
+
+        if (expireTime < System.currentTimeMillis()) {
+            return Result.error(Code.VERTICAL_LOGIN_ERR, "验证码过期");
+        }
+
+        if (!isAtLeastEightCharacters(user.getPassword())) {
             return Result.error(Code.REGISTER_ERR, "密码至少8位");
         } else if (!(isElevenDigits(user.getAccount()))) {
             return Result.error(Code.REGISTER_ERR, "手机号格式错误");
         }
         String uuid = UUID.replaceAll("-", "");
         String username = uuid.substring(0, 8);
-        user.setUsername(username);
+
+        user.setUsername("用户" + username);
+
         return userService.register(user) ? Result.success(Code.REGISTER_OK) :
                 Result.error(Code.REGISTER_ERR, "已存在账号");
 
@@ -116,9 +122,9 @@ public class UserController {
     public Result updateUser(@RequestBody User user) {
         String jwt = req.getHeader("token");
         Claims claims = JwtUtils.parseJwt(jwt);
-        Integer user_id = (Integer) claims.get("id");
+        Integer userId = (Integer) claims.get("id");
 
-        user.setId(user_id);
+        user.setId(userId);
 //        大写处理
         user.setMbti(user.getMbti().toUpperCase());
 

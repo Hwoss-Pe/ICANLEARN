@@ -11,10 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 
+@RestController
 public class DISCTestController {
     @Autowired
     private DISCService discService;
@@ -29,7 +31,7 @@ public class DISCTestController {
                 Result.success(Code.DISC_TEST_OK,discQuestions);
     }
     @PostMapping("/report")
-    public Result getDiscReport(@RequestBody Map<String, String> listMap){
+    public Result getDiscReport(@RequestBody Map<Integer, String> listMap){
 
         String jwt = req.getHeader("token");
         Integer id = JwtUtils.getId(jwt);

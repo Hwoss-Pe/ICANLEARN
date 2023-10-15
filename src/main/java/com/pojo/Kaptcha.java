@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class kaptcha {
+public class Kaptcha {
     private String UUID;
     private String img;
 }

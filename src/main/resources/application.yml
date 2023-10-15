@@ -1,13 +1,39 @@
+#spring:
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/test_db
+#    username: Test_db
+#    password: yk3P8PN6KzAHmbay
+
+
+# 设置调试模式
+
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/test_db
-    username: Test_db
-    password: yk3P8PN6KzAHmbay
+    url: jdbc:mysql://localhost:3306/find_me
+    username: root
+    password: 1234
 
-
+  data:
+    redis:
+      host: 8.134.176.185
+      port: 6379
+      password: redis
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: 100
 
 mybatis:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
+
+# 调试开关（用于拦截器）
+debug:
+  mode:
+    enabled: true

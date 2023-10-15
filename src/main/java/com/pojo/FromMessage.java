@@ -11,4 +11,6 @@ public class FromMessage {
 
     private Integer FromId;
     private String Message;
+    private Integer x;
+    private Integer y;
 }

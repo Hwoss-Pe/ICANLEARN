@@ -77,4 +77,13 @@ public class Code {
     public static final Integer DISC_REPORT_OK = 20361;
     public static final Integer DISC_REPORT_ERR = 10360;
 
+
+    //创建房间
+    public static final Integer CREATE_ROOM_OK = 20371;
+    public static final Integer CREATE_ROOM_ERR = 10370;
+
+    //加入房间
+    public static final Integer JOIN_ROOM_OK = 20381;
+    public static final Integer JOIN_ROOM_ERR = 1030;
+
 }

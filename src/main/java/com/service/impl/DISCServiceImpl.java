@@ -23,10 +23,10 @@ public class DISCServiceImpl implements DISCService {
     }
 
     @Override
-    public DISCReport getReport(Integer userId, Map<String, String> map) {
-        Set<Map.Entry<String, String>> entries = map.entrySet();
+    public DISCReport getReport(Integer userId, Map<Integer, String> map) {
+        Set<Map.Entry<Integer, String>> entries = map.entrySet();
         DISCScore discScore = new DISCScore();
-        for (Map.Entry<String, String> entry : entries) {
+        for (Map.Entry<Integer, String> entry : entries) {
             discScore.setUserId(userId);
             String value = entry.getValue().toUpperCase();
             discScore.increment(value);
