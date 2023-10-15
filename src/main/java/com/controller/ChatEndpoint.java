@@ -61,6 +61,8 @@ public class ChatEndpoint {
             FromMessage fromMessage = new FromMessage();
             fromMessage.setFromId(user_id);
             fromMessage.setMessage(message);
+            fromMessage.setX(mess.getX());
+            fromMessage.setY(mess.getY());
             String FromMessageStr = mapper.writeValueAsString(fromMessage);
 
             //将数据推送给指定的客户端

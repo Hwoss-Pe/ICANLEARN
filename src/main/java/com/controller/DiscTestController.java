@@ -32,7 +32,7 @@ public class DiscTestController {
                 Result.success(Code.DISC_TEST_OK,discQuestions);
     }
     @PostMapping("/report")
-    public Result getDiscReport(@RequestBody Map<String, String> listMap){
+    public Result getDiscReport(@RequestBody Map<Integer, String> listMap){
 
         String jwt = req.getHeader("token");
         Integer id = JwtUtils.getId(jwt);

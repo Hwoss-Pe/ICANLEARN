@@ -2,6 +2,7 @@ package com.example.demo;
 
 import com.config.WebSocketConfig;
 import com.utils.JwtUtils;
+import com.utils.UUIDUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,4 +32,5 @@ class DemoApplicationTests {
         redisTemplate.opsForValue().set("a","nihao!");
         System.out.println(redisTemplate.opsForValue().get("a"));
     }
+
 }

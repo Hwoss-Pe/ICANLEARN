@@ -10,5 +10,5 @@ public interface DiscService {
 
     List<DiscQuestion> getQuestionLists();
 
-    DiscReport getReport(Integer userId, Map<String,String> map);
+    DiscReport getReport(Integer userId, Map<Integer,String> map);
 }
