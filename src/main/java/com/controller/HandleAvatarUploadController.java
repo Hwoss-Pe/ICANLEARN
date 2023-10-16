@@ -13,11 +13,11 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping()
+@RequestMapping("/upload-avatar")
 class HandleAvatarUploadController {
     @Autowired
     private UserService userService;
-    @PostMapping("/upload-avatar")
+    @PostMapping
     public Result handleAvatarUpload(@RequestBody  Map<String,String> map) {
         // 获取Base64编码格式的头像字符串
         Integer user_id = Integer.parseInt(map.get("user_id"));

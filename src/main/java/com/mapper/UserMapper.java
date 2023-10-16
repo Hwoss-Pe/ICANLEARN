@@ -21,10 +21,10 @@ public interface UserMapper {
     void register(User user);
 //    id获取整个对象
     @Select("select * from user where id = #{id}")
-    User FindUserById(Integer id);
+    User findUserById(Integer id);
 //    根据账号去获取整个对象
     @Select("select * from user where account = #{account}")
-    User FindUserByAccount(String account);
+    User findUserByAccount(String account);
     @Update("UPDATE user SET password = #{newPassword} WHERE account = #{account}")
     int resetPassword(String account,String newPassword);
     @Update("UPDATE user SET avatar = #{avatar64} WHERE id = #{id}")

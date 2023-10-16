@@ -84,6 +84,15 @@ public class Code {
 
     //加入房间
     public static final Integer JOIN_ROOM_OK = 20381;
-    public static final Integer JOIN_ROOM_ERR = 1030;
+    public static final Integer JOIN_ROOM_ERR = 10380;
+
+    //选关键词
+    public static final Integer SET_GUESS_WORDS_OK = 20441;
+    public static final Integer SET_GUESS_WORDS_ERR = 10440;
+
+    //猜关键词
+    public static final Integer GUESS_WORDS_OK = 20451;
+    public static final Integer GUESS_WORDS_ERR = 10450;
+
 
 }

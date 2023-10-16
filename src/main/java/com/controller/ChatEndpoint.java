@@ -23,7 +23,6 @@ public class ChatEndpoint {
 
     //和某个客户端连接对象，需要通过他来给客户端发送数据
     private Session session;
-//
 
     @OnOpen
     //连接建立成功调用
@@ -31,9 +30,6 @@ public class ChatEndpoint {
         //需要通知其他的客户端，将所有的用户的用户名发送给客户端
         this.session = session;
 
-//        HttpSession httpSession =
-//                (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
-//            //获取用户id，前端发送的时候需要把token存入请求头里面
         Claims claims = JwtUtils.parseJwt(token);
         Integer user_id = (Integer) claims.get("id");
 

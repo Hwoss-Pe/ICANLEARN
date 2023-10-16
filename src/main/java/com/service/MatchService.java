@@ -10,5 +10,5 @@ import java.util.Map;
 public interface MatchService {
        MatchDegree getDegree(String jwt);
 
-       List<User> matching(String jwt, Map<String, List<String>> map);
+       List<User> matching(Integer id, Map<String, List<String>> map);
 }

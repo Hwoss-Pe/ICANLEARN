@@ -8,11 +8,11 @@ import com.service.UserService;
 import com.utils.Code;
 import com.utils.JwtUtils;
 import com.utils.RedisConstant;
+import com.utils.RedisUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -28,8 +28,13 @@ public class UserController {
     private UserService userService;
     @Autowired
     private HttpServletRequest req;
+
+    private final RedisUtil redisUtil;
+
     @Autowired
-    private RedisTemplate redisTemplate;
+    public UserController(RedisUtil redisUtil) {
+        this.redisUtil = redisUtil;
+    }
 
 
     @PostMapping("/login")
@@ -56,14 +61,14 @@ public class UserController {
         String code = verticaluser.getCode();
         User user = verticaluser.getUser();
 
-        log.info("UUID: {} , code:{} ,user:{}",UUID,code,user);
+        log.info("UUID: {} , code:{} ,user:{}", UUID, code, user);
 //        String factCode = CaptchaController.cache.get(UUID);
 
-        if (!redisTemplate.hasKey(RedisConstant.CAPTCHA_CODE_ID + UUID)){
+        if (!redisUtil.hasKey(RedisConstant.CAPTCHA_CODE_ID + UUID)) {
             return Result.error(Code.VERTICAL_LOGIN_ERR, "请刷新验证码");
         }
 
-        Long expireTime = (Long) redisTemplate.opsForHash().get(RedisConstant.CAPTCHA_CODE_ID + UUID, code);
+        Long expireTime = (Long) redisUtil.hget(RedisConstant.CAPTCHA_CODE_ID + UUID, code);
 
 
         if (expireTime == null) {

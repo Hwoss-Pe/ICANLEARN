@@ -13,8 +13,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper UserMapper;
 
-
-
     @Override
     public List<User> getUsers() {
         return UserMapper.getUsers();
@@ -22,7 +20,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isAccountExist(String account) {
-        User user = UserMapper.FindUserByAccount(account);
+        User user = UserMapper.findUserByAccount(account);
         return user != null;
     }
 
@@ -44,8 +42,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(Integer user_id) {
-        return UserMapper.FindUserById(user_id);
+    public User getUserById(Integer userId) {
+        return UserMapper.findUserById(userId);
     }
 
     @Override
@@ -65,7 +63,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updatePassword(String account, String password) {
-        User user = UserMapper.FindUserByAccount(account);
+        User user = UserMapper.findUserByAccount(account);
         if(user==null){
             return false;
         }

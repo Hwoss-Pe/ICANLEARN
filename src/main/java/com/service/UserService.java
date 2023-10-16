@@ -17,7 +17,7 @@ public interface UserService {
 
     boolean updateAvatar64(Integer user_id, String avatar64);
 
-    User getUserById(Integer user_id);
+    User getUserById(Integer userId);
 
     boolean updateUser(User user);
 
