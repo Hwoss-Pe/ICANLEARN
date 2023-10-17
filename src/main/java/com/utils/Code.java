@@ -86,6 +86,10 @@ public class Code {
     public static final Integer JOIN_ROOM_OK = 20381;
     public static final Integer JOIN_ROOM_ERR = 10380;
 
+    //退出房间
+    public static final Integer EXIT_ROOM_OK = 20381;
+    public static final Integer EXIT_ROOM_ERR = 10380;
+
     //选关键词
     public static final Integer SET_GUESS_WORDS_OK = 20441;
     public static final Integer SET_GUESS_WORDS_ERR = 10440;

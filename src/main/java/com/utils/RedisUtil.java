@@ -1,6 +1,7 @@
 package com.utils;
 
 
+import com.pojo.User;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -544,7 +545,9 @@ public final class RedisUtil {
      */
     public boolean lSet(String key, Object value) {
         try {
-            redisTemplate.opsForList().rightPush(key, value);
+            List<User> userList = (List<User>) value;
+//            redisTemplate.opsForValue().set(key,new User());
+            redisTemplate.opsForList().rightPushAll(key, userList.toArray());
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -634,7 +637,21 @@ public final class RedisUtil {
 
         List<Object> range = redisTemplate.opsForList().range(key, 0, count - 1);
 
-        redisTemplate.opsForList().trim(key, 0, count - 1);
+
+//        trim会自动对指定范围内的数据进行乱序
+        redisTemplate.opsForList().trim(key, count, -1);
+
+        return range;
+    }
+
+
+    public List<Object> lRemoveAll(String key) {
+
+        List<Object> range = redisTemplate.opsForList().range(key, 0, -1);
+
+
+//        trim会自动对指定范围内的数据进行乱序
+        redisTemplate.opsForList().trim(key, 1, 0);
 
         return range;
     }

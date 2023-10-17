@@ -22,4 +22,12 @@ public interface RoomMapper {
     //    通过邀请码获取房间对象
     @Select("select * from room where InvitationCode = #{InvitationCode}")
     Room getRoomByInvitationCode(String InvitationCode);
+
+    //    通过id去获取房间
+    @Select("select * from room where id = #{id}")
+    Room getRoomById(Integer id);
+
+    //   更新房间
+    @Update("Update room set senderId = #{senderId},receiverId = #{receiverId} ,detected = #{detected} where id = #{id} ")
+    int updateRoom(Room room);
 }

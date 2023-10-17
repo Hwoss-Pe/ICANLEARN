@@ -4,8 +4,10 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.websocket.HandshakeResponse;
 import jakarta.websocket.server.HandshakeRequest;
 import jakarta.websocket.server.ServerEndpointConfig;
+import org.springframework.context.ApplicationContext;
 
-public class GetHttpSessionConfigurator extends ServerEndpointConfig.Configurator {
+public class GetHttpSessionConfigurator extends ServerEndpointConfig.Configurator{
+    private static volatile ApplicationContext context;
     @Override
     public void modifyHandshake(ServerEndpointConfig config, HandshakeRequest request, HandshakeResponse response) {
         HttpSession httpSession = (HttpSession) request.getHttpSession();

@@ -51,7 +51,7 @@ public class MatchController {
     }
 
     //匹配
-    @PostMapping()
+    @PostMapping
     public Result match(@RequestBody(required = false) Map<String, List<String>> map, HttpSession session) {
 //        这里看前端传的数据有多少个选择
         String jwt = req.getHeader("token");
@@ -123,8 +123,8 @@ public class MatchController {
         if (redisUtil.hasKey(matchKey)) {
 
             List<User> userList = (List<User>) session.getAttribute("resultList");
-
-            redisUtil.lSet(matchKey, userList);
+            redisUtil.lRemoveAll(matchKey);
+            redisUtil.lSetList(matchKey, userList, RedisConstant.MATCH_EXPIRE_TIME);
         }
         log.info("清除匹配缓存");
         return Result.success();
