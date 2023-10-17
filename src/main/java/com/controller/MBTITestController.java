@@ -1,10 +1,10 @@
 package com.controller;
 
-import com.service.MBTITestService;
 import com.pojo.MBTIResult;
 import com.pojo.MBTIQuestion;
 import com.pojo.Result;
 import com.pojo.MBTITestReport;
+import com.service.MBTITestService;
 import com.utils.Code;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,9 +62,9 @@ public class MBTITestController {
     @GetMapping("/report/{mbti}")
     public Result getMBTITestReport(@PathVariable String mbti) {
         try {
-            log.info("获取mbti报告：{}",mbti);
-            MBTITestReport MBTITestReport = mbtiTestService.getTestReport(mbti);
-            return Result.success(Code.MBTI_REPORT_OK, MBTITestReport);
+            log.info("获取mbti报告：{}", mbti);
+            MBTITestReport testReport = mbtiTestService.getTestReport(mbti);
+            return Result.success(Code.MBTI_REPORT_OK, testReport);
         } catch (Exception e) {
             log.info("MBTI获取报告出错:{}", e.getMessage());
             return Result.error(Code.MBTI_REPORT_ERR, "获取报告出错");

@@ -29,13 +29,11 @@ public class MatchServiceImpl implements MatchService {
     RadioWaveService radioWaveService;
 
     @Override
-    public List<User> matching(String jwt,Map<String, List<String>> map) {
+    public List<User> matching(Integer id,Map<String, List<String>> map) {
 
         List<String> list = new ArrayList<String>();
 
         List<User> returnList = new ArrayList<User>();
-        Claims claims = JwtUtils.parseJwt(jwt);
-        Integer id =(Integer) claims.get("id");
 //      注意这里返回的List里面 是需要去掉好友和等待列表以及自己，
 
         if (map==null||map.size()==0) {

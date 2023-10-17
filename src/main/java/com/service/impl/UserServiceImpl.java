@@ -44,8 +44,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(Integer user_id) {
-        return UserMapper.FindUserById(user_id);
+    public User getUserById(Integer userId) {
+        return UserMapper.FindUserById(userId);
     }
 
     @Override

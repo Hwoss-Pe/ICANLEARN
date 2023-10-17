@@ -34,6 +34,18 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    public boolean updateRoom(Room room) {
+        int i = roomMapper.updateRoom(room);
+
+        return i>0;
+    }
+
+    @Override
+    public Room getRoomById(Integer id) {
+        return roomMapper.getRoomById(id);
+    }
+
+    @Override
     public Room getRoomByInvitationCode(String InvitationCode) {
         return roomMapper.getRoomByInvitationCode(InvitationCode);
     }

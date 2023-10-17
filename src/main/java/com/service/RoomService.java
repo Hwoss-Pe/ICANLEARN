@@ -10,4 +10,8 @@ public interface RoomService {
     boolean updateReceiver(String InvitationCode,Integer receiverId);
 //
 Room getRoomByInvitationCode(String InvitationCode);
+
+    Room getRoomById(Integer id);
+
+    boolean updateRoom(Room room);
 }

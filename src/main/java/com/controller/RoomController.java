@@ -44,7 +44,8 @@ public class RoomController {
         room.setSenderId(userId);
         room.setInvitationCode(testCode);
         if (roomService.createRoom(room)) {
-            return Result.success(Code.CREATE_ROOM_OK, room);
+            Room roomTmp = roomService.getRoomByInvitationCode(testCode);
+            return Result.success(Code.CREATE_ROOM_OK, roomTmp);
         } else {
             return Result.error(Code.CREATE_ROOM_ERR, "创建房间失败");
         }
@@ -53,17 +54,24 @@ public class RoomController {
 
 
     //好友输入邀请码后进入房间
-    @PutMapping("/inRoom")
+    @PutMapping("/in-room")
     public Result inRoom(@RequestBody Map<String, String> map) {
         String jwt = req.getHeader("token");
         Integer userId = JwtUtils.getId(jwt);
         String InvitationCode = map.get("InvitationCode");
 //根据邀请码进入房间，也即是修改房间的收到者为当前id，排除自己
 //        先判断房间有没有人
+
         Room roomTmp = roomService.getRoomByInvitationCode(InvitationCode);
+        if(roomTmp==null) {
+            return Result.error(Code.JOIN_ROOM_ERR,"邀请码错误");
+        }
         if(roomTmp.getReceiverId()>0){
 //证明房间已经满了
             return Result.error(Code.JOIN_ROOM_ERR, "房间满了");
+        }
+        if(roomTmp.getDetected()==1){
+            return Result.error(Code.JOIN_ROOM_ERR, "房主已经退出");
         }
         boolean update = roomService.updateReceiver(InvitationCode, userId);
 //   返回修改后的房间
@@ -74,8 +82,30 @@ public class RoomController {
             return Result.error(Code.JOIN_ROOM_ERR, "加入房间失败");
         }
     }
-//
-//    public Result {
-//
-//    }
+
+//   退出房间的操作，分为两种情况，一种是客人退出，该接收id，一种是房主退出，逻辑删除该房间
+    @DeleteMapping("/exit-room")
+    public Result ExitRoom(@RequestBody Map<String, Integer> map){
+        String jwt = req.getHeader("token");
+        Integer userId = JwtUtils.getId(jwt);
+        Integer roomId = map.get("roomId");
+//通过当前房间id去获取
+        Room room = roomService.getRoomById(roomId);
+        Integer senderId = room.getSenderId();
+        Integer receiverId = room.getReceiverId();
+        if(userId.equals(receiverId)){
+//            设置房间的人为0
+            String invitationCode = room.getInvitationCode();
+            roomService.updateReceiver(invitationCode,0);
+            return Result.success(Code.EXIT_ROOM_OK,"用户退出");
+        }
+        if(userId.equals(senderId)){
+//            逻辑删除房间，这里需要两个一起退出,并且通知别人退出。
+            room.setDetected(1);
+            roomService.updateRoom(room);
+//            退出房间，返回信息让前端发送web的close请求，关闭请求
+            return Result.success(Code.EXIT_ROOM_OK,"房主退出");
+        }
+        return Result.error(Code.EXIT_ROOM_ERR,"房间内人员id出错");
+    }
 }

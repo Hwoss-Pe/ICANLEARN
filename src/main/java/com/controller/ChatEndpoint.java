@@ -2,86 +2,113 @@ package com.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pojo.FromMessage;
-import com.pojo.Message;
 import com.utils.GetHttpSessionConfigurator;
-import com.utils.JwtUtils;
-import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Component;
 import javax.websocket.*;
-import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
-import java.util.HashMap;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint(value = "/instant/chat/{token}",configurator = GetHttpSessionConfigurator.class)
+
+
+
+///目前是房间内聊天在使用
+@ServerEndpoint(value = "/room/{room-id}",configurator = GetHttpSessionConfigurator.class)
 @Component
 public class ChatEndpoint {
 
-    //用来存储每一个客户端对象对应的ChatEndpoint对象,还有对应的id
-    private static final Map<Integer,ChatEndpoint> onlineUsers = new ConcurrentHashMap<>();
+//    采用的是roomId
+    private static final Map<Integer,List<ChatEndpoint>> Roomers = new ConcurrentHashMap<>();
+    private boolean isHost;
+
 
     //和某个客户端连接对象，需要通过他来给客户端发送数据
     private Session session;
-//
 
     @OnOpen
     //连接建立成功调用
-    public void onOpen(Session session, EndpointConfig config, @PathParam("token") String token) {
-            //需要通知其他的客户端，将所有的用户的用户名发送给客户端
-            this.session = session;
+    public void onOpen(Session session, EndpointConfig config, @PathParam("room-id") Integer roomId) {
 
-//        HttpSession httpSession =
-//                (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
-//            //获取用户id，前端发送的时候需要把token存入请求头里面
-            Claims claims = JwtUtils.parseJwt(token);
-            Integer user_id = (Integer) claims.get("id");
-
-            //存储该链接对象
-            onlineUsers.put(user_id,this);
+        this.session = session;
+        //存储该链接对象
+//        这里不能发送roomId，应该放一个
+        List<ChatEndpoint> list;
+        if(Roomers.containsKey(roomId)){
+            list = Roomers.get(roomId);
+        }else {
+            list = new ArrayList<>();
+            isHost = true;
+        }
+        list.add(this);
+        Roomers.put(roomId,list);
+//        Roomers.put(roomId,this);
     }
-
-
 
     @OnMessage
     //接收到消息时调用
-    public void onMessage(String message,Session session,@PathParam("token") String token) {
+    public void onMessage(String message,Session session,@PathParam("room-id") Integer roomId) {
         try {
-            //获取客户端发送来的数据  {"toId":"5","message":"你好"}String
+//            这里约定房主是1，其他用户就是0
+            //获取客户端发送来的数据  {"fromId":"1","message":"你好"}String
             ObjectMapper mapper = new ObjectMapper();
-            Message mess = mapper.readValue(message, Message.class);
+            FromMessage fromMessage = mapper.readValue(message, FromMessage.class);
 
-            //获取用户id
-            Claims claims = JwtUtils.parseJwt(token);
-            Integer user_id = (Integer) claims.get("id");
+//                fromId如果是1证明是房主发的，只需要把信息推给用户，相反就推给用户，但是两都需要进行渲染
+//            第二种思路是前端渲染好页面再发送信息
 
-//           获取返回的信息对象，就是发了什么给谁
-            FromMessage fromMessage = new FromMessage();
-            fromMessage.setFromId(user_id);
-            fromMessage.setMessage(message);
-            fromMessage.setX(mess.getX());
-            fromMessage.setY(mess.getY());
+                List<ChatEndpoint> list = Roomers.get(roomId);
             String FromMessageStr = mapper.writeValueAsString(fromMessage);
+                for (ChatEndpoint chatEndpoint : list) {
+                    chatEndpoint.session.getBasicRemote().sendText(FromMessageStr);
+                }
 
-            //将数据推送给指定的客户端
-            ChatEndpoint chatEndpoint = onlineUsers.get(mess.getToId());
-            chatEndpoint.session.getBasicRemote().sendText(FromMessageStr);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-  @OnClose
-    //连接关闭时调用,建议当用户退出聊天的时候进行主动关闭
-    public void onClose(Session session,@PathParam("token") String token) {
-        //获取用户id
-        Claims claims = JwtUtils.parseJwt(token);
-        Integer user_id = (Integer) claims.get("id");
-        //移除连接对象
-      System.out.println("关闭"+user_id);
-        onlineUsers.remove(user_id);
+
+@OnClose
+    public void onClose(Session session, @PathParam("room-id") Integer roomId) {
+        List<ChatEndpoint> connections = Roomers.get(roomId);
+        if (connections != null) {
+
+
+            // 移除连接对象
+            connections.remove(this);
+
+            // 向其他房间内的连接对象发送消息
+            for (Integer key : Roomers.keySet()) {
+                if (!key.equals(roomId)) {
+                    continue;
+                }
+                List<ChatEndpoint> connections2 = Roomers.get(key);
+                for (ChatEndpoint chatEndpoint : connections2) {
+                    try {
+                        FromMessage fromMessage = new FromMessage();
+                        if (isHost){
+                            fromMessage.setMessage("房主离开房间");
+                        }else {
+                            fromMessage.setMessage("用户离开房间");
+                        }
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        String fromMessageStr = objectMapper.writeValueAsString(fromMessage);
+                        chatEndpoint.session.getBasicRemote().sendText(fromMessageStr);
+                    } catch (IOException e) {
+                       e.printStackTrace();
+                    }
+                }
+            }
+
+            // 如果房间内没有连接了，可以将房间从 Roomers 中移除
+            if (connections.isEmpty()) {
+                Roomers.remove(roomId);
+            }
+        }
     }
 
 }

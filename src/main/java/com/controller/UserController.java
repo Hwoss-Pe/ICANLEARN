@@ -7,9 +7,12 @@ import com.pojo.User;
 import com.pojo.VerticalUser;
 import com.utils.Code;
 import com.utils.JwtUtils;
+import com.utils.RedisConstant;
+import com.utils.RedisUtil;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +30,16 @@ public class UserController {
     @Autowired
     private HttpServletRequest req;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+
+    private final RedisUtil redisUtil;
+
+    @Autowired
+    public UserController(RedisUtil redisUtil) {
+        this.redisUtil = redisUtil;
+    }
 
     @PostMapping("/login")
     public Result login(@RequestBody User user) {
@@ -50,29 +63,44 @@ public class UserController {
         String UUID = verticaluser.getUuid();
         String code = verticaluser.getCode();
         User user = verticaluser.getUser();
-
+        log.info("UUID: {} , code:{} ,user:{}",UUID,code,user);
         log.info("User: " + user.getId()+" is  registering in");
-        String factCode = CaptchaController.cache.get(UUID);
+//        这里去getAccount
+//        String factCode = CaptchaController.cache.get(UUID);
 
+
+
+        if (!redisTemplate.hasKey(RedisConstant.CAPTCHA_CODE_ID + UUID)){
+            return Result.error(Code.VERTICAL_LOGIN_ERR, "请刷新验证码");
+        }
         if(code==null){
             return Result.error(Code.REGISTER_ERR,"请输入验证码");
         }
 
-        Long oldTime = CaptchaController.expire.get(UUID);
-        if(oldTime==null){
-                oldTime = System.currentTimeMillis();
-        }
+        Long expireTime = (Long) redisUtil.hget(RedisConstant.CAPTCHA_CODE_ID + UUID, code);
+//        Long oldTime = CaptchaController.expire.get(UUID);
+//        if(oldTime==null){
+//                oldTime = System.currentTimeMillis();
+//        }
 
         long newTime  = System.currentTimeMillis();
 //        前端响应提示
-        if(newTime-oldTime>1200000){
-            return Result.error(Code.VERTICAL_LOGIN_ERR,"验证码过期");
+//        if(newTime-oldTime>1200000){
+//            return Result.error(Code.VERTICAL_LOGIN_ERR,"验证码过期");
+//        }
+//
+//        else if(!(factCode.equals(code))){
+//            return Result.error(Code.VERTICAL_LOGIN_ERR,"请刷新验证码");
+//        }
+
+        if (expireTime == null) {
+            return Result.error(Code.REGISTER_ERR, "验证码错误");
         }
 
-        else if(!(factCode.equals(code))){
-            return Result.error(Code.VERTICAL_LOGIN_ERR,"请刷新验证码");
+        if (expireTime < System.currentTimeMillis()) {
+            return Result.error(Code.VERTICAL_LOGIN_ERR, "验证码过期");
         }
-        else if(!isAtLeastEightCharacters(user.getPassword())) {
+         if(!isAtLeastEightCharacters(user.getPassword())) {
             return Result.error(Code.REGISTER_ERR,"密码至少8位");
         }
         else if(!(isElevenDigits(user.getAccount()))){
