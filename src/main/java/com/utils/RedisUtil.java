@@ -9,6 +9,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Component
 public final class RedisUtil {
@@ -224,8 +225,14 @@ public final class RedisUtil {
      * @param key 键
      * @return 对应的多个键值
      */
-    public Map<Object, Object> hmget(String key) {
-        return redisTemplate.opsForHash().entries(key);
+    public Map<String, Object> hmget(String key) {
+        Map<Object, Object> map = redisTemplate.opsForHash().entries(key);
+        return  map.entrySet().stream()
+                .filter(entry -> entry.getKey() != null)
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey().toString(),
+                        entry -> entry.getValue() != null ? entry.getValue() : ""
+                ));
     }
 
     /**

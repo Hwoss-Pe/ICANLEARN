@@ -9,9 +9,9 @@ public interface RoomService {
     //创建房间
     boolean createRoom(Room room);
     //加入房间
-    boolean updateReceiver(String InvitationCode,Integer receiverId);
+    boolean updateReceiver(String invitationCode,Integer receiverId);
     //
-    Room getRoomByInvitationCode(String InvitationCode);
+    Room getRoomByInvitationCode(String invitationCode);
 
     Room getRoomById(Integer id);
 
@@ -21,8 +21,10 @@ public interface RoomService {
     Integer setGuessWords(Integer id, List<String> words, String roomCode);
 
     //判断房主猜词是否正确
-    Boolean guessWords(Integer id, List<String> guess, String roomCode);
+    List<String> guessWords(Integer id, List<String> guess, String roomCode);
 
 
+    //获取关键词提示词
+    List<String> getKeyWordsPrompt(Integer num,String promptName);
 
 }
