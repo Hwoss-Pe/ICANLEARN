@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -104,9 +105,22 @@ public class RoomServiceImpl implements RoomService {
     //猜关键词，获取好友设置的关键词，与猜的关键词进行比较，返回重复的关键词
     @Override
     public List<String> guessWords(Integer id, List<String> guess, String roomCode) {
+        List<String> list = getKeyWords(roomCode);
+        return (List<String>) CollectionUtil.intersection(list, guess);
+    }
+
+    @Override
+    public List<String> getKeyWordsPrompt(Integer num, String promptName) {
+        String prompt = roomMapper.selectWordsPrompt(promptName);
+        List<String> promptList = Arrays.asList(prompt.split("、"));
+        Collections.shuffle(promptList);
+        return promptList.subList(0, num);// 取前面 n 个元素
+    }
+
+    @Override
+    public List<String> getKeyWords(String roomCode) {
         String roomKey = RedisConstant.ROOM_HISTORY + roomCode;
         boolean exist = redisUtil.hHasKey(roomKey, RedisConstant.ROOM_KEYWORD);
-        List<String> list;
         String json;
         if (exist) {
             //若缓存中存在则读取缓存数据
@@ -118,16 +132,7 @@ public class RoomServiceImpl implements RoomService {
         if (json == null) {
             return null;
         }
-        list = JSON.parseObject(json, new TypeReference<>() {
-        });
-        return (List<String>) CollectionUtil.intersection(list, guess);
-    }
-
-    @Override
-    public List<String> getKeyWordsPrompt(Integer num, String promptName) {
-        String prompt = roomMapper.selectWordsPrompt(promptName);
-        String[] split = prompt.split("、");
-        return Arrays.asList(Arrays.copyOfRange(split, 0, num));  // 取前面 n 个元素
+        return JSON.parseObject(json, new TypeReference<List<String>>() {});
     }
 
     //更新房间状态

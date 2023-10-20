@@ -27,4 +27,5 @@ public interface RoomService {
     //获取关键词提示词
     List<String> getKeyWordsPrompt(Integer num,String promptName);
 
+    List<String> getKeyWords(String roomCode);
 }

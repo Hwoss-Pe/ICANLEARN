@@ -162,8 +162,13 @@ public class RoomController {
             String roomCode = code.get(0);
             //猜选词，返回list类型
             List<String> intersection = roomService.guessWords(id, guess, roomCode);
+            List<String> keyWords = roomService.getKeyWords(roomCode);
 
-            return Result.success(Code.GUESS_WORDS_OK, intersection);
+            Map<String,List<String>> listMap = new HashMap<>();
+            listMap.put("intersection",intersection);
+            listMap.put("keyWords",keyWords);
+
+            return Result.success(Code.GUESS_WORDS_OK, listMap);
         } catch (Exception e) {
             e.printStackTrace();
             return Result.error(Code.GUESS_WORDS_ERR, "对比关键词出错");
