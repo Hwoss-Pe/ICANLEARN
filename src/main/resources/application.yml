@@ -16,8 +16,14 @@ spring:
 #    password: yk3P8PN6KzAHmbay
 #  redis:
 #    host: 127.0.0.1
-#    port:
-#      6379
+#    port: 6379
+
+
+
+
+
+
+##8.134.176.185
   redis:
     host: 8.134.176.185
     port: 6379
@@ -28,7 +34,7 @@ spring:
         max-idle: 8
         min-idle: 0
         max-wait: 100
-
+#
 
 
 

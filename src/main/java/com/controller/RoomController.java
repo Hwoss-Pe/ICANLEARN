@@ -5,19 +5,20 @@ import com.pojo.Room;
 import com.service.RoomService;
 import com.utils.Code;
 import com.utils.JwtUtils;
+
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @RestController
 @Slf4j
-@RequestMapping("room")
+@RequestMapping("/room")
 public class RoomController {
     @Autowired
     private RoomService roomService;
@@ -49,7 +50,6 @@ public class RoomController {
         } else {
             return Result.error(Code.CREATE_ROOM_ERR, "创建房间失败");
         }
-
     }
 
 
@@ -63,14 +63,18 @@ public class RoomController {
 //        先判断房间有没有人
 
         Room roomTmp = roomService.getRoomByInvitationCode(InvitationCode);
-        if(roomTmp==null) {
-            return Result.error(Code.JOIN_ROOM_ERR,"邀请码错误");
+        if (roomTmp == null) {
+            return Result.error(Code.JOIN_ROOM_ERR, "邀请码错误");
         }
-        if(roomTmp.getReceiverId()>0){
+        if (roomTmp.getReceiverId()!= null && roomTmp.getReceiverId() > 0) {
 //证明房间已经满了
+            //判断是否为本人
+            if (roomTmp.getReceiverId().equals(userId)){
+                return Result.error(Code.JOIN_ROOM_ERR,"您已经在房间中");
+            }
             return Result.error(Code.JOIN_ROOM_ERR, "房间满了");
         }
-        if(roomTmp.getDetected()==1){
+        if (roomTmp.getDetected()!= null && roomTmp.getDetected() == 1) {
             return Result.error(Code.JOIN_ROOM_ERR, "房主已经退出");
         }
         boolean update = roomService.updateReceiver(InvitationCode, userId);
@@ -83,9 +87,9 @@ public class RoomController {
         }
     }
 
-//   退出房间的操作，分为两种情况，一种是客人退出，该接收id，一种是房主退出，逻辑删除该房间
+    //   退出房间的操作，分为两种情况，一种是客人退出，该接收id，一种是房主退出，逻辑删除该房间
     @DeleteMapping("/exit-room")
-    public Result ExitRoom(@RequestBody Map<String, Integer> map){
+    public Result exitRoom(@RequestBody Map<String, Integer> map) {
         String jwt = req.getHeader("token");
         Integer userId = JwtUtils.getId(jwt);
         Integer roomId = map.get("roomId");
@@ -93,19 +97,83 @@ public class RoomController {
         Room room = roomService.getRoomById(roomId);
         Integer senderId = room.getSenderId();
         Integer receiverId = room.getReceiverId();
-        if(userId.equals(receiverId)){
+        if (userId.equals(receiverId)) {
 //            设置房间的人为0
             String invitationCode = room.getInvitationCode();
-            roomService.updateReceiver(invitationCode,0);
-            return Result.success(Code.EXIT_ROOM_OK,"用户退出");
+            roomService.updateReceiver(invitationCode, 0);
+            return Result.success(Code.EXIT_ROOM_OK, "用户退出");
         }
-        if(userId.equals(senderId)){
+        if (userId.equals(senderId)) {
 //            逻辑删除房间，这里需要两个一起退出,并且通知别人退出。
             room.setDetected(1);
             roomService.updateRoom(room);
 //            退出房间，返回信息让前端发送web的close请求，关闭请求
-            return Result.success(Code.EXIT_ROOM_OK,"房主退出");
+            return Result.success(Code.EXIT_ROOM_OK, "房主退出");
         }
-        return Result.error(Code.EXIT_ROOM_ERR,"房间内人员id出错");
+        return Result.error(Code.EXIT_ROOM_ERR, "房间内人员id出错");
     }
+
+    //获取关键词推荐
+    @GetMapping("/prompt/{num}")
+    public Result getKeyWordsPrompt(@PathVariable Integer num) {
+        try {
+            List<String> character = roomService.getKeyWordsPrompt(num, "character");
+            List<String> occupation = roomService.getKeyWordsPrompt(num, "occupation");
+
+            Map<String, List<String>> map = new HashMap<>();
+            map.put("character", character);
+            map.put("occupation", occupation);
+            return Result.success(Code.KEY_WORDS_PROMPT_OK, map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(Code.KEY_WORDS_PROMPT_ERR, "获取关键词推荐失败");
+        }
+    }
+
+
+    //好友给出对应的关键词
+    @PostMapping("/set_guess")
+    public Result setGuessWords(@RequestBody Map<String, List<String>> map) {
+        try {
+            String jwt = req.getHeader("token");
+            Integer id = JwtUtils.getId(jwt);
+            List<String> words = map.get("words");
+            List<String> code = map.get("roomCode");
+            String roomCode = code.get(0);
+            //将选词存储起来，返回关键词的个数
+            Integer num = roomService.setGuessWords(id, words, roomCode);
+            return Result.success(Code.SET_GUESS_WORDS_OK, num);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(Code.SET_GUESS_WORDS_ERR, "选词失败");
+        }
+
+
+    }
+
+    //房主填入猜的关键词，校对是否正确
+//    这里就是需要去进行做房主填入后进行校验，并且把结果数据传给用户
+    @PostMapping("/check_guess")
+    public Result checkGuess(@RequestBody Map<String, List<String>> map) {
+        try {
+            String jwt = req.getHeader("token");
+            Integer id = JwtUtils.getId(jwt);
+            List<String> guess = map.get("guess");
+            List<String> code = map.get("roomCode");
+            String roomCode = code.get(0);
+            //猜选词，返回list类型
+            List<String> intersection = roomService.guessWords(id, guess, roomCode);
+            List<String> keyWords = roomService.getKeyWords(roomCode);
+
+            Map<String,List<String>> listMap = new HashMap<>();
+            listMap.put("intersection",intersection);
+            listMap.put("keyWords",keyWords);
+
+            return Result.success(Code.GUESS_WORDS_OK, listMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(Code.GUESS_WORDS_ERR, "对比关键词出错");
+        }
+    }
+
 }

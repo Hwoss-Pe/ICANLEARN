@@ -88,11 +88,17 @@ public class Code {
     public static final Integer EXIT_ROOM_OK = 20381;
     public static final Integer EXIT_ROOM_ERR = 10380;
 
+    //关键词提示
+    public static final Integer KEY_WORDS_PROMPT_OK = 20441;
+    public static final Integer KEY_WORDS_PROMPT_ERR = 20441;
+
+
     //选关键词
-    public static final Integer SET_GUESS_WORDS_OK = 20441;
-    public static final Integer SET_GUESS_WORDS_ERR = 10440;
+    public static final Integer SET_GUESS_WORDS_OK = 20451;
+    public static final Integer SET_GUESS_WORDS_ERR = 10450;
 
     //猜关键词
-    public static final Integer GUESS_WORDS_OK = 20451;
-    public static final Integer GUESS_WORDS_ERR = 10450;
+    public static final Integer GUESS_WORDS_OK = 20461;
+    public static final Integer GUESS_WORDS_ERR = 10460;
+
 }

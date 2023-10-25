@@ -18,14 +18,14 @@ public class HLDTestResult {
     private String result;//结果
     //分数
     //R 和 A 不能同时出现：R 代表现实型 A 代表艺术型
-    private Integer R = 0;
-    private Integer A = 0;
+    private Integer R = 5;
+    private Integer A = 5;
     //I 和 C 不能同时出现：I 代表研究型 C 代表常规型
-    private Integer I = 0;
-    private Integer C = 0;
+    private Integer I = 5;
+    private Integer C = 5;
     //S 和 E 不能同时出现：S 代表社会型 E 代表企业型
-    private Integer S = 0;
-    private Integer E = 0;
+    private Integer S = 5;
+    private Integer E = 5;
 
     private List<HLDTestReport> reports;
 

@@ -15,5 +15,7 @@ public class Room {
     private Integer senderId;
     private Integer receiverId;
     private Integer detected;
+    private String keyWords;
+    private String guessWords;
     private Timestamp createTime;
 }

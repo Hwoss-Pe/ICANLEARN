@@ -100,7 +100,7 @@ public class UserController {
         if (expireTime < System.currentTimeMillis()) {
             return Result.error(Code.VERTICAL_LOGIN_ERR, "验证码过期");
         }
-         if(!isAtLeastEightCharacters(user.getPassword())) {
+        if(!isAtLeastEightCharacters(user.getPassword())) {
             return Result.error(Code.REGISTER_ERR,"密码至少8位");
         }
         else if(!(isElevenDigits(user.getAccount()))){
@@ -160,8 +160,8 @@ public class UserController {
         return Pattern.matches(regex, str);
     }
     public static boolean isAtLeastEightCharacters(String str) {
-            // 使用正则表达式匹配至少8位字符
-            String regex = "^.{8,}$";
-            return Pattern.matches(regex, str);
-        }
+        // 使用正则表达式匹配至少8位字符
+        String regex = "^.{8,}$";
+        return Pattern.matches(regex, str);
     }
+}
