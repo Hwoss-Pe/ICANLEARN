@@ -105,6 +105,10 @@ public class RoomServiceImpl implements RoomService {
     //猜关键词，获取好友设置的关键词，与猜的关键词进行比较，返回重复的关键词
     @Override
     public List<String> guessWords(Integer id, List<String> guess, String roomCode) {
+        String roomKey = RedisConstant.ROOM_HISTORY + roomCode;
+        String guessJson = JSON.toJSONString(guess);
+        redisUtil.hset(roomKey,RedisConstant.GUESS_WORDS,guessJson);
+        roomMapper.updateGuessWords(roomCode,guessJson);
         List<String> list = getKeyWords(roomCode);
         return (List<String>) CollectionUtil.intersection(list, guess);
     }
@@ -132,7 +136,8 @@ public class RoomServiceImpl implements RoomService {
         if (json == null) {
             return null;
         }
-        return JSON.parseObject(json, new TypeReference<List<String>>() {});
+        return JSON.parseObject(json, new TypeReference<>() {
+        });
     }
 
     //更新房间状态

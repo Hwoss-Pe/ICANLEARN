@@ -6,8 +6,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import java.util.List;
-
 @Mapper
 public interface RoomMapper {
     //    判断有没有重复的邀请码
@@ -20,7 +18,8 @@ public interface RoomMapper {
 
     //    通过邀请码修改
     @Update("Update room set receiverId = #{receiverId} where InvitationCode = #{InvitationCode}")
-    int updateReceiver(String InvitationCode,Integer receiverId);
+    int updateReceiver(String InvitationCode, Integer receiverId);
+
     //    通过邀请码获取房间对象
     @Select("select * from room where InvitationCode = #{InvitationCode}")
     Room getRoomByInvitationCode(String InvitationCode);
@@ -42,4 +41,9 @@ public interface RoomMapper {
 
     @Select("select description from keyword_prompt where type = #{type}")
     String selectWordsPrompt(String type);
+
+    //加入所猜的关键词
+    @Update("update room set guess_words = #{guessJson} where invitationCode = #{roomCode}")
+    void updateGuessWords(String roomCode, String guessJson);
+
 }

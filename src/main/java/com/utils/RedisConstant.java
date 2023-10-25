@@ -23,8 +23,9 @@ public class RedisConstant {
     //房间关键词
     public static final String ROOM_KEYWORD = "keyWords";
 
-    //房主id
-    public static final String SENDER_ID = "senderId";
+
+    //房主所猜关键词
+    public static final String GUESS_WORDS = "guessWords";
 
     //好友id
     public static final String RECEIVER_ID = "receiverId";
