@@ -7,10 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DISCQuestion {
+public class DiscReport {
     private Integer id;
-    private String AAnswer;
-    private String BAnswer;
-    private String CAnswer;
-    private String DAnswer;
+    private String info;
+    private String emotion;
+    private String work;
+    private String relation;
+    private String description;
 }

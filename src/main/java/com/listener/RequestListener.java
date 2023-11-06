@@ -1,9 +1,10 @@
 package com.listener;
 
-import jakarta.servlet.ServletRequestEvent;
-import jakarta.servlet.ServletRequestListener;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.ServletRequestEvent;
+import javax.servlet.ServletRequestListener;
+import javax.servlet.http.HttpServletRequest;
 
 @Component
 public class RequestListener implements ServletRequestListener {

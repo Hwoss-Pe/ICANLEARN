@@ -15,4 +15,6 @@ public interface MBTITestService {
 
     //获取MBTI测试报告
     MBTITestReport getTestReport(String mbti);
+
+    List<String> getKeywords(String intro);
 }

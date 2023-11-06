@@ -4,7 +4,9 @@ import com.mapper.HLDMapper;
 import com.pojo.HLDQuestion;
 import com.pojo.HLDTestReport;
 import com.pojo.HLDTestResult;
+import com.pojo.User;
 import com.service.HLDService;
+import com.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +18,15 @@ public class HLDServiceImpl implements HLDService {
     @Autowired
     private HLDMapper hldMapper;
 
+    @Autowired
+    private UserService userService;
+
     @Override
     public List<HLDQuestion> getHLDQuestionList(Integer num) {
         List<HLDQuestion> questionList = hldMapper.getQuestionList();
-        return new ArrayList<>(questionList.subList(0, num));
+        return new ArrayList<>(questionList.subList(0,num));
     }
+
 
     @Override
     public HLDTestResult getHLDResult(Integer id, List<Integer> answer) {
@@ -38,6 +44,20 @@ public class HLDServiceImpl implements HLDService {
 
         hldTestResult.setReports(reports);
 
+
+
+
+
+//        增加将结果存入用户的hld
+        User user = userService.getUserById(id);
+        user.setHld(hldTestResult.getResult());
+        userService.updateUser(user);
+
         return hldTestResult;
+    }
+
+    @Override
+    public List<HLDTestReport> getHLDTestReport(List<String> types) {
+        return hldMapper.getHLDTestReport(types);
     }
 }

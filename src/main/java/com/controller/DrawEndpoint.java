@@ -1,16 +1,17 @@
 package com.controller;
 
+import com.config.GetHttpSessionConfigurator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pojo.FromMessage;
 import com.pojo.Message;
-import com.utils.GetHttpSessionConfigurator;
 import com.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
-import jakarta.websocket.*;
-import jakarta.websocket.server.PathParam;
-import jakarta.websocket.server.ServerEndpoint;
+
 import org.springframework.stereotype.Component;
 
+import javax.websocket.*;
+import javax.websocket.server.PathParam;
+import javax.websocket.server.ServerEndpoint;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -62,6 +63,11 @@ public class DrawEndpoint {
             fromMessage.setMessage(message);
             fromMessage.setX(mess.getX());
             fromMessage.setY(mess.getY());
+            fromMessage.setColor(mess.getColor());
+            fromMessage.setThick(mess.getThick());
+            fromMessage.setCanvasId(mess.getCanvasId());
+            fromMessage.setFirstDraw(mess.getFirstDraw());
+            fromMessage.setFinish(mess.getFinish());
             String FromMessageStr = mapper.writeValueAsString(fromMessage);
 
             //将数据推送给指定的客户端

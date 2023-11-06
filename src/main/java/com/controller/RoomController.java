@@ -5,11 +5,11 @@ import com.pojo.Room;
 import com.service.RoomService;
 import com.utils.Code;
 import com.utils.JwtUtils;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class RoomController {
     private HttpServletRequest req;
 
     @GetMapping("/create")
-    public Result getInviteCode() throws Exception {
+    public Result getInviteCode() {
         // 邀请码
         String testCode = null;
         boolean flag = true;
@@ -66,15 +66,15 @@ public class RoomController {
         if (roomTmp == null) {
             return Result.error(Code.JOIN_ROOM_ERR, "邀请码错误");
         }
-        if (roomTmp.getReceiverId()!= null && roomTmp.getReceiverId() > 0) {
+        if (roomTmp.getReceiverId() != null && roomTmp.getReceiverId() > 0) {
 //证明房间已经满了
             //判断是否为本人
-            if (roomTmp.getReceiverId().equals(userId)){
-                return Result.error(Code.JOIN_ROOM_ERR,"您已经在房间中");
+            if (roomTmp.getReceiverId().equals(userId)) {
+                return Result.error(Code.JOIN_ROOM_ERR, "您已经在房间中");
             }
             return Result.error(Code.JOIN_ROOM_ERR, "房间满了");
         }
-        if (roomTmp.getDetected()!= null && roomTmp.getDetected() == 1) {
+        if (roomTmp.getDetected() != null && roomTmp.getDetected() == 1) {
             return Result.error(Code.JOIN_ROOM_ERR, "房主已经退出");
         }
         boolean update = roomService.updateReceiver(InvitationCode, userId);
@@ -132,8 +132,8 @@ public class RoomController {
 
 
     //好友给出对应的关键词
-    @PostMapping("/set_guess")
-    public Result setGuessWords(@RequestBody Map<String, List<String>> map) {
+    @PostMapping("/set_guess/{type}")
+    public Result setGuessWords(@RequestBody Map<String, List<String>> map, @PathVariable String type) {
         try {
             String jwt = req.getHeader("token");
             Integer id = JwtUtils.getId(jwt);
@@ -141,7 +141,7 @@ public class RoomController {
             List<String> code = map.get("roomCode");
             String roomCode = code.get(0);
             //将选词存储起来，返回关键词的个数
-            Integer num = roomService.setGuessWords(id, words, roomCode);
+            Integer num = roomService.setGuessWords(id, words, roomCode, type);
             return Result.success(Code.SET_GUESS_WORDS_OK, num);
         } catch (Exception e) {
             e.printStackTrace();
@@ -152,8 +152,8 @@ public class RoomController {
     }
 
     //房主填入猜的关键词，校对是否正确
-    @PostMapping("/check_guess")
-    public Result checkGuess(@RequestBody Map<String, List<String>> map) {
+    @PostMapping("/check_guess/{type}")
+    public Result checkGuess(@RequestBody Map<String, List<String>> map, @PathVariable String type) {
         try {
             String jwt = req.getHeader("token");
             Integer id = JwtUtils.getId(jwt);
@@ -161,18 +161,34 @@ public class RoomController {
             List<String> code = map.get("roomCode");
             String roomCode = code.get(0);
             //猜选词，返回list类型
-            List<String> intersection = roomService.guessWords(id, guess, roomCode);
-            List<String> keyWords = roomService.getKeyWords(roomCode);
+            List<String> intersection = roomService.guessWords(id, guess, roomCode, type);
+            List<String> keyWords = roomService.getKeyWords(roomCode, type);
 
-            Map<String,List<String>> listMap = new HashMap<>();
-            listMap.put("intersection",intersection);
-            listMap.put("keyWords",keyWords);
+            Map<String, List<String>> listMap = new HashMap<>();
+            listMap.put("intersection", intersection);
+            listMap.put("keyWords", keyWords);
 
             return Result.success(Code.GUESS_WORDS_OK, listMap);
         } catch (Exception e) {
             e.printStackTrace();
             return Result.error(Code.GUESS_WORDS_ERR, "对比关键词出错");
         }
+    }
+
+
+    //保存画板
+    @PutMapping("/save")
+    public Result saveBoard(@RequestBody Map<String, String> map) {
+        String invitationCode = map.get("invitationCode");
+        String token = req.getHeader("token");
+        String base64 = map.get("whiteboard");
+        Integer userId = JwtUtils.getId(token);
+//       保存的时候就把画板，获取对应的关键词，然后进行保存
+
+        int i = roomService.saveBoard(invitationCode, userId, base64);
+
+        return i > 0 ? Result.success(Code.WHITEBOARD_SAVE_OK, "保存成功") :
+                Result.error(Code.WHITEBOARD_SAVE_ERR, "保存失败");
     }
 
 }

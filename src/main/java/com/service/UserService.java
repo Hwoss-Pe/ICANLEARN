@@ -22,4 +22,6 @@ public interface UserService {
     boolean updateUser(User user);
 
     List<User> getUsersByMBTI(String mbti);
+
+    String getAvatar(Integer userId);
 }

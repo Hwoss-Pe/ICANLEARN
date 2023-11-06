@@ -1,5 +1,6 @@
 package com.pojo;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,9 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MBTIIntro {
-    private Integer id;
-    private String type;
-    private String intro;
-    private String keywords;
+public class FriendSettings {
+    private  Integer id;
+    private Integer userId;
+    private String content;
+    private Integer counts;
 }

@@ -6,7 +6,6 @@
 #    password: yk3P8PN6KzAHmbay
 
 
-# 设置调试模式
 
 
 spring:
@@ -16,24 +15,60 @@ spring:
     username: root
     password: 1234
 
-  data:
-    redis:
-      host: 8.134.176.185
-      port: 6379
-      password: redis
-      lettuce:
-        pool:
-          max-active: 8
-          max-idle: 8
-          min-idle: 0
-          max-wait: 100
+
+  mail:
+    properties:
+      mail:
+        smtp:
+        auth: true
+        starttls:
+          enable: true
+          required: true
+        socketFactory:
+          class: javax.net.ssl.SSLSocketFactory
+          port: 465
+        timeout: 2000
+
+
+
+  redis:
+    host: 8.134.176.185
+    port: 6379
+    password: redis
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: 100
+
+  kafka:
+    bootstrap-servers: 8.134.211.237:9092
+    listener:
+      concurrency: 10
+      poll-timeout: 1500
+    consumer:
+      group-id: find-me
+      auto-offset-reset: earliest
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 mybatis:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
 
+
+  # 配置自定义类型处理器
+  type-handlers-package: com.utils.StringToArrayTypeHandler
+
 # 调试开关（用于拦截器）
 debug:
   mode:
     enabled: true
+
+
+

@@ -4,6 +4,9 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.mapper.RoomMapper;
+import com.mapper.UserMapper;
+import com.pojo.FriendSettings;
+import com.pojo.Images;
 import com.pojo.Room;
 import com.service.RoomService;
 import com.utils.BeanMapUtils;
@@ -23,6 +26,9 @@ import java.util.Map;
 public class RoomServiceImpl implements RoomService {
     @Autowired
     private RoomMapper roomMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     private final RedisUtil redisUtil;
 
@@ -75,24 +81,44 @@ public class RoomServiceImpl implements RoomService {
 
     //将keyWords存入缓存以及数据库
     @Override
-    public Integer setGuessWords(Integer id, List<String> words, String roomCode) {
+    public Integer setGuessWords(Integer id, List<String> words, String roomCode, String type) {
         try {
             String roomKey = RedisConstant.ROOM_HISTORY + roomCode;
             boolean exist = redisUtil.hasKey(roomKey);
             String json = JSON.toJSONString(words);
+            String keyWordKey;
+            Integer status;
+            if (type.equals("character")){
+                keyWordKey = RedisConstant.ROOM_CHARACTER_KEYWORD;
+                status = 1;
+            }else if (type.equals("job")){
+                keyWordKey = RedisConstant.ROOM_JOB_KEYWORD;
+                status = 2;
+            }else {
+                throw new RuntimeException("RoomServiceImpl$setGuessWords类型出错");
+            }
+
             if (exist) {
                 //若key存在则对缓存操作
-                redisUtil.hset(roomKey, RedisConstant.ROOM_KEYWORD, json);
-                roomMapper.updateKeyWords(roomCode, json); // 更新数据库中的数据
+                redisUtil.hset(roomKey,keyWordKey , json);
+                if (status.equals(1)){
+                    roomMapper.updateCharacterKeyWords(roomCode, json); // 更新数据库中的数据
+                }else {
+                    roomMapper.updateJobKeyWords(roomCode,json);
+                }
             } else {
                 Room room = roomMapper.isRoomExists(roomCode);
                 if (room == null) {
                     return null;
                 }
-                room.setKeyWords(json);
+                if (status.equals(1)){
+                    room.setCharacterKeyWords(json);
+                    roomMapper.updateCharacterKeyWords(roomCode, json);
+                }else {
+                    room.setJobKeyWords(json);
+                    roomMapper.updateJobKeyWords(roomCode,json);
+                }
                 Map<String, Object> map = BeanMapUtils.beanToMap(room);
-                //判断数据库是否有该数据库，后添加缓存
-                roomMapper.updateKeyWords(roomCode, json);
                 redisUtil.hmset(roomKey, map, RedisConstant.ROOM_EXPIRE_TIME);
             }
             return words.size();
@@ -104,12 +130,26 @@ public class RoomServiceImpl implements RoomService {
 
     //猜关键词，获取好友设置的关键词，与猜的关键词进行比较，返回重复的关键词
     @Override
-    public List<String> guessWords(Integer id, List<String> guess, String roomCode) {
+    public List<String> guessWords(Integer id, List<String> guess, String roomCode, String type) {
         String roomKey = RedisConstant.ROOM_HISTORY + roomCode;
+        String guessWordKey;
+        if (type.equals("job")){
+            guessWordKey = RedisConstant.GUESS_JOB_WORDS;
+        }else if (type.equals("character")){
+            guessWordKey = RedisConstant.GUESS_CHARACTER_WORDS;
+        }else {
+            throw new RuntimeException("RoomServiceImpl$setGuessWords类型出错");
+        }
         String guessJson = JSON.toJSONString(guess);
-        redisUtil.hset(roomKey,RedisConstant.GUESS_WORDS,guessJson);
-        roomMapper.updateGuessWords(roomCode,guessJson);
-        List<String> list = getKeyWords(roomCode);
+        redisUtil.hset(roomKey,guessWordKey,guessJson);
+        List<String> list;
+
+        if (type.equals("job")){
+            roomMapper.updateCharacterGuessWords(roomCode,guessJson);
+        }else{
+            roomMapper.updateJobGuessWords(roomCode,guessJson);
+        }
+        list = getKeyWords(roomCode, guessWordKey);
         return (List<String>) CollectionUtil.intersection(list, guess);
     }
 
@@ -122,22 +162,62 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public List<String> getKeyWords(String roomCode) {
+    public List<String> getKeyWords(String roomCode, String guessWordKey) {
+
         String roomKey = RedisConstant.ROOM_HISTORY + roomCode;
-        boolean exist = redisUtil.hHasKey(roomKey, RedisConstant.ROOM_KEYWORD);
+        boolean exist = redisUtil.hHasKey(roomKey, guessWordKey);
         String json;
         if (exist) {
             //若缓存中存在则读取缓存数据
-            json = (String) redisUtil.hget(roomKey, RedisConstant.ROOM_KEYWORD);
+            json = (String) redisUtil.hget(roomKey, guessWordKey);
         } else {
             //若缓存中不存在则读取数据库
-            json = roomMapper.selectKeyWords(roomCode);
+            if (guessWordKey.equals(RedisConstant.GUESS_JOB_WORDS)){
+                json = roomMapper.selectCharacterKeyWords(roomCode);
+            }else {
+                json = roomMapper.selectJobKeyWords(roomCode);
+            }
         }
         if (json == null) {
             return null;
         }
         return JSON.parseObject(json, new TypeReference<>() {
         });
+    }
+
+
+
+    public int saveBoard(String invitationCode, Integer userId,String base64) {
+        Images images  = new Images();
+        images.setWhiteboard(base64);
+        images.setUserId(userId);
+//        通过房间邀请码去获取对面的id，还有关键词
+        Room room = roomMapper.getRoomByInvitationCode(invitationCode);
+        Integer receiverId = room.getReceiverId();
+        try{
+            images.setFromId(room.getReceiverId());
+            //再通过id去获取名字
+            images.setFromName(userMapper.findUserById(receiverId).getUsername());
+            images.setJobKeywords(room.getJobKeyWords());
+            images.setCharacterKeywords(room.getCharacterKeyWords());
+        }catch (Exception e){
+            return 0;
+        }
+        return  roomMapper.saveImage(images);
+    }
+
+    public int updateKeywords(String content, Integer userId) {
+//        先判断关键词有没有
+        FriendSettings keyword = roomMapper.getKeyword(content);
+        int i;
+        if (keyword == null) {
+//            加数据
+            i = roomMapper.addKeyword(userId, content);
+        } else {
+//            采用+1
+            i = roomMapper.updateKeywords(content);
+        }
+        return i;
     }
 
     //更新房间状态

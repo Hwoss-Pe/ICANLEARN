@@ -10,12 +10,12 @@ import com.utils.JwtUtils;
 import com.utils.RedisConstant;
 import com.utils.RedisUtil;
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
 

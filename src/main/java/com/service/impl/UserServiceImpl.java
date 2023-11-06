@@ -1,8 +1,8 @@
 package com.service.impl;
 
 import com.mapper.UserMapper;
-import com.pojo.User;
 import com.service.UserService;
+import com.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +12,8 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper UserMapper;
+
+
 
     @Override
     public List<User> getUsers() {
@@ -26,14 +28,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean register(User user) {
-       String account = user.getAccount();
+        String account = user.getAccount();
 //        这里需要去判断注册是否手机号存在
-       if(isAccountExist(account)){
+        if(isAccountExist(account)){
             return false;
-       }else{
-           UserMapper.register(user);
-           return true;
-       }
+        }else{
+            UserMapper.register(user);
+            return true;
+        }
     }
 
     @Override
@@ -48,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updateAvatar64(Integer user_id, String avatar64) {
-      return UserMapper.uploadAvatar(user_id, avatar64)>0;
+        return UserMapper.uploadAvatar(user_id, avatar64)>0;
     }
 
     @Override
@@ -69,5 +71,10 @@ public class UserServiceImpl implements UserService {
         }
         UserMapper.resetPassword(account,password);
         return true;
+    }
+
+    @Override
+    public String getAvatar(Integer userId){
+        return UserMapper.getAvatar(userId);
     }
 }

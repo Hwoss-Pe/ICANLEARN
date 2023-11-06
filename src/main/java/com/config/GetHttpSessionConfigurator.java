@@ -1,10 +1,11 @@
-package com.utils;
+package com.config;
 
-import jakarta.servlet.http.HttpSession;
-import jakarta.websocket.HandshakeResponse;
-import jakarta.websocket.server.HandshakeRequest;
-import jakarta.websocket.server.ServerEndpointConfig;
 import org.springframework.context.ApplicationContext;
+
+import javax.servlet.http.HttpSession;
+import javax.websocket.HandshakeResponse;
+import javax.websocket.server.HandshakeRequest;
+import javax.websocket.server.ServerEndpointConfig;
 
 public class GetHttpSessionConfigurator extends ServerEndpointConfig.Configurator{
     private static volatile ApplicationContext context;

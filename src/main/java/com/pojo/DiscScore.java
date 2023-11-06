@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DISCScore {
+public class DiscScore {
     private Integer id;
     private Integer userId;
     private Integer D = 0;
@@ -19,19 +19,11 @@ public class DISCScore {
 
 
     public void increment(String answer){
-        switch(answer){
-            case "A":
-                D++;
-                break;
-            case "B":
-                I++;
-                break;
-            case "C":
-                S++;
-                break;
-            case "D":
-                C++;
-                break;
+        switch (answer) {
+            case "A" -> D++;
+            case "B" -> I++;
+            case "C" -> S++;
+            case "D" -> C++;
         }
     }
 
