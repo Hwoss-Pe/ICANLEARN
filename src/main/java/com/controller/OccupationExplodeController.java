@@ -1,6 +1,6 @@
 package com.controller;
+
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
 import com.pojo.OccupationExplode;
 import com.pojo.Result;
 import com.pojo.SearchHistory;
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-
 import java.util.List;
 import java.util.Map;
 
@@ -205,11 +204,11 @@ public class OccupationExplodeController {
     }
 
     @PostMapping("/finish")
-    public Result finishPlan(@RequestBody Map<String, String> map){
+    public Result finishPlan(@RequestBody Map<String, String> map) {
         String coordinate = map.get("coordinate");
         String token = req.getHeader("token");
         Integer userId = JwtUtils.getId(token);
-        occupationExplodeService.updatePlan(userId,coordinate);
+        occupationExplodeService.updatePlan(userId, coordinate);
         System.out.println(coordinate);
         return Result.success();
     }

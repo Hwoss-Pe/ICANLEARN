@@ -2,11 +2,11 @@ package com.utils;
 
 
 import com.pojo.User;
-import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -227,7 +227,7 @@ public final class RedisUtil {
      */
     public Map<String, Object> hmget(String key) {
         Map<Object, Object> map = redisTemplate.opsForHash().entries(key);
-        return  map.entrySet().stream()
+        return map.entrySet().stream()
                 .filter(entry -> entry.getKey() != null)
                 .collect(Collectors.toMap(
                         entry -> entry.getKey().toString(),
@@ -503,9 +503,9 @@ public final class RedisUtil {
      * @param end   结束 0 到 -1代表所有值
      * @return
      */
-    public List<Object> lGet(String key, long start, long end) {
+    public <T> List<T> lGet(String key, long start, long end) {
         try {
-            return redisTemplate.opsForList().range(key, start, end);
+            return (List<T>) redisTemplate.opsForList().range(key, start, end);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -640,9 +640,9 @@ public final class RedisUtil {
         }
     }
 
-    public List<Object> lRemove(String key, long count) {
+    public <T> List<T> lRemove(String key, long count) {
 
-        List<Object> range = redisTemplate.opsForList().range(key, 0, count - 1);
+        List<T> range = (List<T>) redisTemplate.opsForList().range(key, 0, count - 1);
 
 
 //        trim会自动对指定范围内的数据进行乱序

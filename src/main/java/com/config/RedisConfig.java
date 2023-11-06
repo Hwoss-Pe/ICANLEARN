@@ -3,15 +3,26 @@ package com.config;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 public class RedisConfig {
+
+    @Value("${spring.redis.host}")
+    private String host;
+    @Value("${spring.redis.password}")
+    private String password;
+
     // 自己定义了一个RedisTemplate
     @Bean
     @SuppressWarnings("all")
@@ -39,4 +50,38 @@ public class RedisConfig {
         template.afterPropertiesSet();
         return template;
     }
+
+    /**
+     * 创建 RedisMessageListenerContainer 实例用于监听 Redis 事件
+     *
+     * @param connectionFactory Redis 连接工厂
+     * @return RedisMessageListenerContainer 实例
+     */
+    @Bean
+    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory) {
+        // 创建 RedisMessageListenerContainer 实例
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        // 设置 Redis 连接工厂
+        container.setConnectionFactory(connectionFactory);
+
+
+        //返回RedisMessageListenerContainer 实例
+        return container;
+    }
+
+    @Bean
+    RedisConnectionFactory connectionFactory() {
+        // 创建 RedisStandaloneConfiguration，指定 Redis 服务器的主机和端口
+        RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
+        redisConfig.setHostName(host);
+        redisConfig.setPort(6379);
+        redisConfig.setPassword(password);
+
+        // 创建 LettuceClientConfiguration，可以进行更高级的配置，例如连接池配置、SSL 配置等
+        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.defaultConfiguration();
+
+        // 创建 LettuceConnectionFactory，将 RedisStandaloneConfiguration 和 LettuceClientConfiguration 传递进去
+        return new LettuceConnectionFactory(redisConfig, clientConfig);
+    }
+
 }

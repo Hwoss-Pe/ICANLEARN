@@ -14,7 +14,7 @@ import java.util.List;
 @Mapper
 public interface OccupationExplodeMapper {
     //    通过id去获取职业信息
-    @Select("select * from occupation_explode where  id = #{id}")
+    @Select("select * from occupation_explode where id = #{id}")
     OccupationExplode getOccupationById(Integer id);
 
     //    用like去获取，后面改成es
@@ -22,7 +22,7 @@ public interface OccupationExplodeMapper {
     List<OccupationExplode> getOccupation(String keyword);
 
     //    添加到历史记录
-    @Insert("insert into search_history  (user_id, content) values(#{userId}, #{content})")
+    @Insert("insert into search_history (user_id, content) values(#{userId}, #{content})")
     int addHistory(Integer userId ,String content);
 
     //    获取之前的历史的记录
