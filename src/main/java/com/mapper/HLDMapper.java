@@ -3,6 +3,7 @@ package com.mapper;
 import com.pojo.HLDQuestion;
 import com.pojo.HLDTestReport;
 import com.pojo.HLDTestResult;
+import com.pojo.MBTIIntro;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -21,5 +22,6 @@ public interface HLDMapper {
 
 
     List<HLDTestReport> getHLDTestReport(List<String> types);
+
 
 }

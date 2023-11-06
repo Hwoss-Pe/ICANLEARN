@@ -72,4 +72,9 @@ public class UserServiceImpl implements UserService {
         UserMapper.resetPassword(account,password);
         return true;
     }
+
+    @Override
+    public String getAvatar(Integer userId){
+        return UserMapper.getAvatar(userId);
+    }
 }

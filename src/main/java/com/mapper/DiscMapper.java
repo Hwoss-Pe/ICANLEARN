@@ -28,4 +28,6 @@ public interface DiscMapper {
     @Update("UPDATE disc_score SET D = #{D}, I = #{I}, S = #{S}, C = #{C}, result = #{result} WHERE user_id = #{userId}")
     void updateDiscScore(DiscScore discScore);
 
+
+
 }

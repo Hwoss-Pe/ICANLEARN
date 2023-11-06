@@ -1,5 +1,6 @@
 package com.service;
 
+import com.pojo.Images;
 import com.pojo.Room;
 
 import java.util.List;
@@ -17,17 +18,18 @@ Room getRoomByInvitationCode(String InvitationCode);
 
     boolean updateRoom(Room room);
 
-
-//    /存储给房主猜的选词
-    Integer setGuessWords(Integer id, List<String> words, String roomCode);
+    //存储给房主猜的选词
+    Integer setGuessWords(Integer id, List<String> words, String roomCode, String type);
 
     //判断房主猜词是否正确
-    List<String> guessWords(Integer id, List<String> guess, String roomCode);
+    List<String> guessWords(Integer id, List<String> guess, String roomCode, String type);
 
 
     //获取关键词提示词
     List<String> getKeyWordsPrompt(Integer num,String promptName);
 
-//    RoomService加这个
-    List<String> getKeyWords(String roomCode);
+    List<String> getKeyWords(String roomCode, String type);
+    int saveBoard( String invitationCode,Integer userId,String base64);
+
+    int updateKeywords(String content,Integer userId);
 }

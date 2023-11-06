@@ -5,8 +5,7 @@ spring:
     username: root
     password:
 
-
-
+##
 #spring:
 #  #数据库连接信息
 #  datasource:
@@ -17,7 +16,7 @@ spring:
 #  redis:
 #    host: 127.0.0.1
 #    port: 6379
-
+#
 
 
 
@@ -34,6 +33,18 @@ spring:
         max-idle: 8
         min-idle: 0
         max-wait: 100
+  mail:
+    properties:
+      mail:
+        stmp:
+        auth: true
+        starttls:
+          enable: true
+          required: true
+        socketFactory:
+          class: javax.net.ssl.SSLSocketFactory
+          port: 465
+        timeout: 2000
 #
 
 
@@ -43,8 +54,10 @@ mybatis:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
-
-
+    # 配置自定义类型处理器
+  type-handlers-package: com.utils.StringToArrayTypeHandler
+#server:
+#  port: 8080
     # 调试开关（用于拦截器）
 debug:
   mode:

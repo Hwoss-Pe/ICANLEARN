@@ -30,9 +30,14 @@ public interface UserMapper {
     @Update("UPDATE user SET avatar = #{avatar64} WHERE id = #{id}")
     int uploadAvatar(Integer id,String avatar64);
 //更新整个User
-    @Update("UPDATE user SET username = #{username},job = #{job},mbti = #{mbti} ,interest = #{interest},signature = #{signature},interest_mbti =#{interest_mbti} WHERE id = #{id}")
+    @Update("UPDATE user SET username = #{username},job = #{job},mbti = #{mbti} ,interest = #{interest},signature = #{signature},interest_mbti =#{interest_mbti},hld = #{hld},disc = #{disc} WHERE id = #{id}")
     int updateUser(User user);
 //    根据mbti去获取对象集合
     @Select("SELECT * FROM user WHERE mbti = #{mbti}")
     List<User> getUsersByMBTI(String mbti);
+
+    @Select("SELECT avatar FROM user WHERE id = #{id}")
+  String getAvatar(Integer id);
+
 }
+

@@ -12,4 +12,12 @@ public class Message {
     private String message;
     private Integer x;
     private Integer y;
+//    颜色#000000
+    private String color;
+//    笔的宽度012
+    private Integer thick;
+//    画图id
+    private Integer canvasId;
+    private String finish;
+    private String firstDraw;
 }

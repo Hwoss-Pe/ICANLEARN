@@ -4,6 +4,8 @@ import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.LineCaptcha;
 import org.apache.commons.mail.HtmlEmail;
 
+import java.util.Properties;
+
 
 public class EmailUtils {
     public static String sendEmail(String toEmail) {
@@ -11,7 +13,11 @@ public class EmailUtils {
         // 验证码值
         String code = lineCaptcha.getCode().toUpperCase();
         try {
+//            Properties properties = System.getProperties();
+//            properties.put("mail.smtp.port", "587");
             HtmlEmail send = new HtmlEmail();
+//            这里必须开ssl设置，并且配置文件里面开465端口，不然在服务器上不会修改25端口
+            send.setSSLOnConnect(true);
             //设置发送邮箱的host 默认值
             send.setHostName("smtp.qq.com");
             //配置发送邮箱和邮箱授权码

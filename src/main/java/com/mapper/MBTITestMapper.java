@@ -30,7 +30,15 @@ public interface MBTITestMapper {
     MBTITestReport selectReportByMBTI(String mbti);
 
 //获取所有简介
-    @Select("select id, type, intro from mbti_intro")
+    @Select("select id, type, intro,keywords from mbti_intro")
     List<MBTIIntro> selectIntro();
+
+//    根据userId去获取mbti类型
+    @Select("select * from mbti_score where user_id =#{userId}")
+    MBTITestScore getResult(Integer userId);
+
+//    根据mbti的类型去获取四个关键词
+    @Select("select * from mbti_intro where type = #{type}")
+    MBTIIntro getKeywords(String type);
 
 }

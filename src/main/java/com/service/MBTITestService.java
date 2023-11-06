@@ -1,5 +1,6 @@
 package com.service;
 
+import com.pojo.MBTIIntro;
 import com.pojo.MBTIResult;
 import com.pojo.MBTIQuestion;
 import com.pojo.MBTITestReport;
@@ -15,4 +16,6 @@ public interface MBTITestService {
 
     //获取MBTI测试报告
     MBTITestReport getTestReport(String mbti);
+
+    List<String> getKeywords(String intro);
 }

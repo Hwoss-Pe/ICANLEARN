@@ -9,6 +9,8 @@ import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -103,5 +105,16 @@ public class MBTITestServiceImpl implements MBTITestService {
         }
 
         return MBTITestReport;
+    }
+
+    @Override
+    public List<String> getKeywords(String mbti) {
+        List<String> keywords = new ArrayList<String>();
+//        分别按照mbti类型拆分后读取内容
+        for (int i = 0; i < mbti.length(); i++) {
+            MBTIIntro mbtiIntro = mbtiTestMapper.getKeywords(String.valueOf(mbti.charAt(i)));
+            keywords.add(mbtiIntro.getKeywords());
+        }
+        return keywords;
     }
 }

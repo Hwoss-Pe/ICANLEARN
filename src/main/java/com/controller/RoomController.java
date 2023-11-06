@@ -1,5 +1,6 @@
 package com.controller;
 
+import com.pojo.Images;
 import com.pojo.Result;
 import com.pojo.Room;
 import com.service.RoomService;
@@ -132,8 +133,8 @@ public class RoomController {
 
 
     //好友给出对应的关键词
-    @PostMapping("/set_guess")
-    public Result setGuessWords(@RequestBody Map<String, List<String>> map) {
+    @PostMapping("/set_guess/{type}")
+    public Result setGuessWords(@RequestBody Map<String, List<String>> map, @PathVariable String type) {
         try {
             String jwt = req.getHeader("token");
             Integer id = JwtUtils.getId(jwt);
@@ -141,7 +142,7 @@ public class RoomController {
             List<String> code = map.get("roomCode");
             String roomCode = code.get(0);
             //将选词存储起来，返回关键词的个数
-            Integer num = roomService.setGuessWords(id, words, roomCode);
+            Integer num = roomService.setGuessWords(id, words, roomCode,type);
             return Result.success(Code.SET_GUESS_WORDS_OK, num);
         } catch (Exception e) {
             e.printStackTrace();
@@ -152,9 +153,8 @@ public class RoomController {
     }
 
     //房主填入猜的关键词，校对是否正确
-//    这里就是需要去进行做房主填入后进行校验，并且把结果数据传给用户
-    @PostMapping("/check_guess")
-    public Result checkGuess(@RequestBody Map<String, List<String>> map) {
+    @PostMapping("/check_guess/{type}")
+    public Result checkGuess(@RequestBody Map<String, List<String>> map, @PathVariable String type) {
         try {
             String jwt = req.getHeader("token");
             Integer id = JwtUtils.getId(jwt);
@@ -162,8 +162,8 @@ public class RoomController {
             List<String> code = map.get("roomCode");
             String roomCode = code.get(0);
             //猜选词，返回list类型
-            List<String> intersection = roomService.guessWords(id, guess, roomCode);
-            List<String> keyWords = roomService.getKeyWords(roomCode);
+            List<String> intersection = roomService.guessWords(id, guess, roomCode,type);
+            List<String> keyWords = roomService.getKeyWords(roomCode,type);
 
             Map<String,List<String>> listMap = new HashMap<>();
             listMap.put("intersection",intersection);
@@ -175,5 +175,18 @@ public class RoomController {
             return Result.error(Code.GUESS_WORDS_ERR, "对比关键词出错");
         }
     }
+//保存画板
+    @PutMapping("/save")
+    public Result saveBoard(@RequestBody Map<String,String> map){
+        String invitationCode = map.get("invitationCode");
+        String token = req.getHeader("token");
+        String base64 = map.get("whiteboard");
+        Integer userId = JwtUtils.getId(token);
+//       保存的时候就把画板，获取对应的关键词，然后进行保存
 
+        int i = roomService.saveBoard(invitationCode, userId,base64);
+
+        return i>0?Result.success(Code.WHITEBOARD_SAVE_OK,"保存成功"):
+                Result.error(Code.WHITEBOARD_SAVE_ERR,"保存失败");
+    }
 }

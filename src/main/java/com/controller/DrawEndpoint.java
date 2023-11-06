@@ -64,6 +64,11 @@ public class DrawEndpoint {
             fromMessage.setMessage(message);
             fromMessage.setX(mess.getX());
             fromMessage.setY(mess.getY());
+            fromMessage.setColor(mess.getColor());
+            fromMessage.setThick(mess.getThick());
+            fromMessage.setCanvasId(mess.getCanvasId());
+            fromMessage.setFirstDraw(mess.getFirstDraw());
+            fromMessage.setFinish(mess.getFinish());
             String FromMessageStr = mapper.writeValueAsString(fromMessage);
 
             //将数据推送给指定的客户端

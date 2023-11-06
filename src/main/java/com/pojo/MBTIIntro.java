@@ -11,4 +11,5 @@ public class MBTIIntro {
     private Integer id;
     private String type;
     private String intro;
+    private String keywords;
 }

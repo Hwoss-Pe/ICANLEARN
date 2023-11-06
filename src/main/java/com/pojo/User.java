@@ -16,6 +16,8 @@ public class User {
     private String job;
     private String mbti;
     private String interest;
+    private String disc;
+    private String hld;
     private String interest_mbti;
     private String avatar;
     private String signature;

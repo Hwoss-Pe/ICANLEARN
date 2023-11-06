@@ -100,5 +100,52 @@ public class Code {
     //猜关键词
     public static final Integer GUESS_WORDS_OK = 20461;
     public static final Integer GUESS_WORDS_ERR = 10460;
+//    搜索出来的网页信息
+    public static final Integer SEARCH_KEYWORDS_OK = 20391;
+    public static final Integer SEARCH_KEYWORDS_ERR = 10390;
+//    获取历史记录
+    public static final Integer SEARCH_HISTORY_OK = 20611;
+    public static final Integer SEARCH_HISTORY_ERR = 10610;
+//    联想词
+    public static final Integer ASSOCIATE_OK = 20621;
+    public static final Integer ASSOCIATE_ERR = 10620;
+    //职业具体信息
+    public static final Integer Occupation_DETAIL_OK = 20631;
+    public static final Integer Occupation_DETAIL_ERR = 10610;
+//    职业点赞
+    public static final Integer SEARCH_LIKE_OK = 20641;
+    public static final Integer SEARCH_LIKE_ERR = 10640;
+//    职业取消点赞
+    public static final Integer SEARCH_CANCEL_LIKE_OK = 20651;
+    public static final Integer SEARCH_CANCEL_LIKE_ERR = 10650;
+//    职业收藏
+    public static final Integer SEARCH_COLLECTION_OK = 20661;
+    public static final Integer SEARCH_COLLECTION_ERR = 10660;
+//    职业取消收藏
+    public static final Integer SEARCH_COLLECTION_CANCEL_OK = 20671;
+    public static final Integer SEARCH_COLLECTION_CANCEL_ERR = 10670;
+//    添加绘本
+    public static final Integer CARTOON_ADD_OK = 20681;
+    public static final Integer CARTOON_ADD_ERR = 10680;
+//    获取绘本
+    public static final Integer CARTOON_GET_OK = 20691;
+    public static final Integer CARTOON_GET_ERR = 10690;
+//  更新绘本
+    public static final Integer CARTOON_UPDATE_OK = 20691;
+    public static final Integer CARTOON_UPDATE_ERR = 10690;
 
+    //    保存画板
+    public static final Integer WHITEBOARD_SAVE_OK = 20701;
+    public static final Integer WHITEBOARD_SAVE_ERR = 10700;
+
+    //    删除绘本
+    public static final Integer CARTOON_DELETE_OK = 20711;
+    public static final Integer CARTOON_DELETE_ERR = 10710;
+    //    获取头像
+    public static final Integer GET_AVATAR_OK = 20721;
+    public static final Integer GET_AVATAR_ERR = 10720;
+
+    //    画板主页
+    public static final Integer WHITEBOARD_GET_OK = 20731;
+    public static final Integer WHITEBOARD_GET_ERR = 10730;
 }
