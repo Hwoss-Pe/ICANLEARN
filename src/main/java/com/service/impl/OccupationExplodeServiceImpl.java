@@ -213,16 +213,22 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
     }
 
     @Override
-    public int addPlan(ToDo toDo) {
-        String s = Arrays.deepToString(toDo.getDes());
-        toDo.setDesStr(s);
+    public int addPlan(ToDo toDo,Integer userId) {
+
+//        这里还需要去判断该原来有没有计划表
+        ToDo plan = occupationExplodeMapper.getPlan(userId, toDo.getStage());
+        if(plan!=null){
+            return 0;
+        }
+        String s = Arrays.deepToString(toDo.getDesArray());
+        toDo.setDes(s);
         String[][] finnishArray = new String[5][5];
 
 
         for (String[] strings : finnishArray) {
             Arrays.fill(strings, "0");
         }
-        toDo.setFinishStr(Arrays.deepToString(finnishArray));
+        toDo.setFinish(Arrays.deepToString(finnishArray));
 
         // 先将字符串转换为一维数组
 
@@ -230,35 +236,46 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
     }
 
     @Override
-    public boolean updatePlan(Integer userId, String coordinate) {
-
-
+    public int updatePlan(Integer userId, String coordinate,Integer stage) {
 
         String[] split = coordinate.split(",");
         int x = Integer.parseInt(split[0]);
         int y = Integer.parseInt(split[1]);
         if (x >= 5 || y >= 5) {
-            return false;
+            return 0;
         }
 //        必须根据id先获取里面的数据
-        ToDo plan = occupationExplodeMapper.getPlan();
-        String finishStr = plan.getFinishStr();
+        ToDo plan = occupationExplodeMapper.getPlan(userId,stage);
+        String finishStr = plan.getFinish();
         String[][] finish = convert(finishStr);
         if(finish[x][y].equals("1")){
-            return false;
+            return 0;
         }
         finish[x][y] = "1";
 //        更新状态后进行去判断是否连线
         boolean bingo = isBingo(x, y, finish, 5);
-
-
+        boolean bingoAll = bingoAll(finish);
         String newFinishStr = Arrays.deepToString(finish);
-        plan.setFinishStr(newFinishStr);
-        occupationExplodeMapper.updatePlan(userId,plan);
-
-        return bingo;
+        plan.setFinish(newFinishStr);
+        occupationExplodeMapper.updatePlan(plan);
+//        1表示添加成功，0添加失败，2表示直线，3表示全部
+        if(bingoAll){
+            return 3;
+        }
+        if(bingo){
+            return 2;
+        }
+        return 1;
     }
 
+
+    @Override
+    public ToDo getPlan(Integer userId,Integer stage) {
+        ToDo plan = occupationExplodeMapper.getPlan(userId, stage);
+        plan.setDesArray(convert(plan.getDes()));
+        plan.setFinishArray(convert(plan.getFinish()));
+        return plan;
+    }
 
     //    把字符串转成二维数组
     public String[][] convert(String s) {
@@ -287,8 +304,8 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
 
         // 检查纵向是否有 N 个相同的棋子连成一条线
         count = 0;
-        for (int i = 0; i <= N; i++) {
-            count = finish[x][i].equals("1") ? count + 1 : 0;
+        for (int i = 0; i < N; i++) {
+            count = finish[i][y].equals("1") ? count + 1 : 0;
             if (count == N) {
                 return true;
             }
@@ -325,5 +342,18 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
 
         // 如果以上都没有返回 true，说明没有连成 N 子棋
         return false;
+    }
+
+
+
+    public boolean bingoAll(String[][] finish){
+        for (String[] strings : finish) {
+            for (String string : strings) {
+                if (string.equals("0")) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

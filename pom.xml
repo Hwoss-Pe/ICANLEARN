@@ -140,13 +140,7 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
             <version>2.1.7.RELEASE</version>
         </dependency>
-<!--        &lt;!&ndash;序列化&ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>com.alibaba</groupId>-->
-<!--            <artifactId>fastjson</artifactId>-->
-<!--            <version>1.2.54</version>-->
-<!--            <scope>compile</scope>-->
-<!--        </dependency>-->
+
 
 
         <!--email-->
@@ -155,7 +149,10 @@
             <artifactId>commons-email</artifactId>
             <version>1.4</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
 <!--        elasticSearch-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -168,6 +165,14 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>

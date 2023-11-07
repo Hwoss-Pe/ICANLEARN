@@ -37,6 +37,7 @@ public class OccupationExplodeController {
     @Autowired
     private RestHighLevelClient client;
 
+
     //    获取具体所有信息
     @GetMapping("/{jobId}")
     public Result getOccupation(@PathVariable("jobId") Integer id) {
@@ -199,19 +200,40 @@ public class OccupationExplodeController {
         Integer userId = JwtUtils.getId(token);
 //        获取具体的二维数组,前端直接传数组就行
         toDo.setUserId(userId);
-        occupationExplodeService.addPlan(toDo);
-        return Result.success();
+        int i = occupationExplodeService.addPlan(toDo, userId);
+
+        return i!=0?Result.success(Code.SET_PLAN_OK,"计划添加成功")
+                :Result.error(Code.SET_PLAN_ERR,"阶段重复，添加失败");
     }
 
     @PostMapping("/finish")
     public Result finishPlan(@RequestBody Map<String, String> map){
         String coordinate = map.get("coordinate");
+        String stageStr = map.get("stage");
+        int stage = Integer.parseInt(stageStr);
         String token = req.getHeader("token");
         Integer userId = JwtUtils.getId(token);
-        occupationExplodeService.updatePlan(userId,coordinate);
-        System.out.println(coordinate);
-     return Result.success();
+        int bingo = occupationExplodeService.updatePlan(userId, coordinate,stage);
+        switch (bingo) {
+            case 0:
+                return Result.error(Code.FINISH_PLAN_ERR,"添加失败");
+            case 1:
+                return Result.success(Code.FINISH_PLAN_OK,"添加成功");
+            case 2:
+                return Result.success(Code.FINISH_PLAN_OK,"第一次一条直线");
+            case 3:
+                return Result.success(Code.FINISH_PLAN_OK,"全部消除");
+            default:
+                return Result.error(Code.FINISH_PLAN_OK,"完成任务出错");
+        }
     }
-//        这里要去判断有没有五个一线
+//  获取计划
+    @GetMapping("/my-plan/{stage}")
+    public Result getPlan(@PathVariable Integer stage ){
+
+        Integer userId = JwtUtils.getId(req.getHeader("token"));
+        ToDo plan = occupationExplodeService.getPlan(userId,stage);
+        return plan!=null ? Result.success(Code.GET_PLAN_OK,plan) : Result.error(Code.GET_PLAN_ERR,"获取计划表失败");
+    }
 }
 

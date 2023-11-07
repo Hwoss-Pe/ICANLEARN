@@ -14,8 +14,9 @@ public class ToDo {
     private String task;
     private String startTime;
     private String endTime;
-    private String[][] finish;
-    private String[][] des;
-    private String finishStr;
-    private String desStr;
+    private String[][] finishArray;
+    private String[][] desArray;
+    private String finish;
+    private String des;
+    private Integer stage;
 }

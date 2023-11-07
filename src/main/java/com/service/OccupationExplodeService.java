@@ -36,7 +36,9 @@ public interface OccupationExplodeService {
     void cancelCollection(Integer userId,Integer id);
 
 //  添加todo
-    int addPlan(ToDo toDo);
+    int addPlan(ToDo toDo,Integer userId);
 
-    boolean updatePlan(Integer userId,String coordinate);
+    int updatePlan(Integer userId,String coordinate,Integer stage);
+
+    ToDo getPlan(Integer userId,Integer stage);
 }

@@ -48,14 +48,14 @@ public interface OccupationExplodeMapper {
     @Update("update occupation_explode set collection = collection - 1 where id = #{id}")
     void cancelCollection(Integer id);
 
-    @Insert("INSERT INTO to_do (user_id,task,start_time,end_time,finish,des)values (#{userId},#{task},#{startTime},#{endTime},#{finishStr},#{desStr})")
+    @Insert("INSERT INTO to_do (user_id,task,start_time,end_time,finish,des,stage)values (#{userId},#{task},#{startTime},#{endTime},#{finish},#{des},#{stage})")
     int addPlan(ToDo toDo);
 
 
-    @Select("SELECT * FROM to_do WHERE user_id = #{userId}")
-    ToDo getPlan();
+    @Select("SELECT * FROM to_do WHERE user_id = #{userId} and stage = #{stage}")
+    ToDo getPlan(Integer userId,Integer stage);
 //    根据id去获取计划
 
-    @Update("update to_do set task = #{task},start_time = #{startTime},end_time = #{endTime},finish = #{finishStr},des = #{desStr}")
-    int updatePlan(Integer userId,ToDo toDo);
+    @Update("update to_do set task = #{task},start_time = #{startTime},end_time = #{endTime},finish = #{finish},des = #{des} where user_id = #{userId} and stage = #{stage}")
+    int updatePlan(ToDo toDo);
 }

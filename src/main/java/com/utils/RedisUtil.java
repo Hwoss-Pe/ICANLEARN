@@ -507,15 +507,14 @@ public final class RedisUtil {
      * @param end   结束 0 到 -1代表所有值
      * @return
      */
-    public List<Object> lGet(String key, long start, long end) {
+    public <T> List<T> lGet(String key, long start, long end) {
         try {
-            return redisTemplate.opsForList().range(key, start, end);
+            return (List<T>) redisTemplate.opsForList().range(key, start, end);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
-
     /**
      * 获取list缓存的长度
      *
@@ -644,9 +643,9 @@ public final class RedisUtil {
         }
     }
 
-    public List<Object> lRemove(String key, long count) {
+    public <T> List<T> lRemove(String key, long count) {
 
-        List<Object> range = redisTemplate.opsForList().range(key, 0, count - 1);
+        List<T> range = (List<T>) redisTemplate.opsForList().range(key, 0, count - 1);
 
 
 //        trim会自动对指定范围内的数据进行乱序
