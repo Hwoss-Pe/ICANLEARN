@@ -1,5 +1,6 @@
 package com.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.pojo.Result;
 import com.pojo.Room;
 import com.service.RoomService;
@@ -161,9 +162,9 @@ public class RoomController {
             List<String> code = map.get("roomCode");
             String roomCode = code.get(0);
             //猜选词，返回list类型
-            List<String> intersection = roomService.guessWords(id, guess, roomCode, type);
+            List<String> guessWords = roomService.guessWords(id, guess, roomCode, type);
             List<String> keyWords = roomService.getKeyWords(roomCode, type);
-
+            List<String> intersection = (List<String>) CollectionUtil.intersection(keyWords,guessWords);
             Map<String, List<String>> listMap = new HashMap<>();
             listMap.put("intersection", intersection);
             listMap.put("keyWords", keyWords);
