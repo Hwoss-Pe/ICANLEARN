@@ -47,35 +47,37 @@ public class ForumPostLikeExpirationListener extends KeyExpirationEventMessageLi
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
+//        根据消息对象去获取字节数组，也可以直接toString
         String expiredKey = new String(message.getBody());
         log.info("键：{} 过期", expiredKey);
+//        这里返回不是他的信息，拓展性
         if (!expiredKey.startsWith(RedisConstant.FORUM_POST_LIKE)) {
             return;
-        }
-        //获取帖子id
-        Integer id = Integer.parseInt(expiredKey.substring(RedisConstant.FORUM_POST_LIKE.length()));
-        //获取备份key
-        String backupKey = RedisConstant.BACKUP_FORUM_POST_LIKE + id;
+}
+    //获取帖子id
+    Integer id = Integer.parseInt(expiredKey.substring(RedisConstant.FORUM_POST_LIKE.length()));
+    //获取备份key
+    String backupKey = RedisConstant.BACKUP_FORUM_POST_LIKE + id;
         try {
-            // 根据过期的 key 从 Redis 中获取对应的数据
-            Map<String, Object> map = redisUtil.hmget(backupKey);
-            log.info("map:{}", map);
-            if (map != null) {
-                //修改帖子的点赞数量
-                forumMapper.updateForumPostLikeNum(map.size(), id);
-                log.info("修改帖子：{} 的点赞数量：{}", id, map.size());
-                //提取数据转化为ForumPostLike的list类型
-                List<ForumPostLike> list = extractForumPostLikeToList(map);
-                //批量添加数据到点赞表中
-                forumMapper.insertList2ForumPostLike(list);
-                log.info("批量添加数据到点赞表中:{}", list);
-            }
-            redisUtil.del(backupKey);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            log.info("{} 将过期key的数据存入数据库失败", expiredKey);
+                // 根据过期的 key 从 Redis 中获取对应的数据
+                Map<String, Object> map = redisUtil.hmget(backupKey);
+        log.info("map:{}", map);
+        if (map != null) {
+        //修改帖子的点赞数量
+        forumMapper.updateForumPostLikeNum(map.size(), id);
+        log.info("修改帖子：{} 的点赞数量：{}", id, map.size());
+        //提取数据转化为ForumPostLike的list类型
+        List<ForumPostLike> list = extractForumPostLikeToList(map);
+        //批量添加数据到点赞表中
+        forumMapper.insertList2ForumPostLike(list);
+        log.info("批量添加数据到点赞表中:{}", list);
         }
-    }
+        redisUtil.del(backupKey);
+        } catch (NumberFormatException e) {
+        e.printStackTrace();
+        log.info("{} 将过期key的数据存入数据库失败", expiredKey);
+        }
+        }
 
     private List<ForumPostLike> extractForumPostLikeToList(Map<String, Object> map) {
         List<ForumPostLike> list = new ArrayList<>();

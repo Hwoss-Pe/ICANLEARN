@@ -102,7 +102,6 @@ public interface ForumMapper {
     //根据id列表查询帖子预览信息
     List<ForumPostPreview> selectForumPostPreViewsByIds(List<Integer> ids);
 
-
     //查询与搜索内容匹配的帖子id
     @Select("select id from posts where labels like CONCAT('%', #{keyword}, '%') or title like CONCAT('%',#{keywords},'%')")
     List<Integer> selectIdsBySearchContent(String keyWords);

@@ -246,4 +246,17 @@ public class Code {
 //    获取任务
     public static final Integer GET_PLAN_OK = 20931;
     public static final Integer GET_PLAN_ERR = 10930;
+//    更新任务
+    public static final Integer UPDATE_PLAN_OK = 20941;
+    public static final Integer UPDATE_PLAN_ERR = 10940;
+//=========================价值探索=======================================
+//    得出结果
+    public static final Integer VALUE_RESULT_OK = 20951;
+    public static final Integer VALUE_RESULT_ERR = 10950;
+//    保存进度
+    public static final Integer VALUE_SAVE_OK = 20951;
+    public static final Integer VALUE_SAVE_ERR = 10950;
+//    获取进度
+    public static final Integer VALUE_GET_OK = 20951;
+    public static final Integer VALUE_GET_ERR = 10950;
 }

@@ -21,4 +21,5 @@ public class User {
     private String interest_mbti;
     private String avatar;
     private String signature;
+    private Cartoon cartoon;
 }

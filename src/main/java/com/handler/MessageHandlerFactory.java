@@ -17,7 +17,7 @@ public class MessageHandlerFactory {
     //策略映射
     private Map<String, Supplier<MessageHandler<? extends Forum>>> supplierMap = new HashMap<>();
 
-    public void registerMessageHandler(String handlerStr, Supplier<? extends MessageHandler<? extends Forum>> supplier) {
+    public  <T extends Forum> void registerMessageHandler(String handlerStr, Supplier<? extends MessageHandler<? extends Forum>> supplier) {
         supplierMap.put(handlerStr, (Supplier<MessageHandler<? extends Forum>>) supplier);
     }
 

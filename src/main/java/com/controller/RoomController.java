@@ -1,5 +1,6 @@
 package com.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.pojo.Images;
 import com.pojo.Result;
 import com.pojo.Room;
@@ -162,12 +163,12 @@ public class RoomController {
             List<String> code = map.get("roomCode");
             String roomCode = code.get(0);
             //猜选词，返回list类型
-            List<String> intersection = roomService.guessWords(id, guess, roomCode,type);
-            List<String> keyWords = roomService.getKeyWords(roomCode,type);
-
-            Map<String,List<String>> listMap = new HashMap<>();
-            listMap.put("intersection",intersection);
-            listMap.put("keyWords",keyWords);
+            List<String> guessWords = roomService.guessWords(id, guess, roomCode, type);
+            List<String> keyWords = roomService.getKeyWords(roomCode, type);
+            List<String> intersection = (List<String>) CollectionUtil.intersection(keyWords,guessWords);
+            Map<String, List<String>> listMap = new HashMap<>();
+            listMap.put("intersection", intersection);
+            listMap.put("keyWords", keyWords);
 
             return Result.success(Code.GUESS_WORDS_OK, listMap);
         } catch (Exception e) {
@@ -175,6 +176,7 @@ public class RoomController {
             return Result.error(Code.GUESS_WORDS_ERR, "对比关键词出错");
         }
     }
+
 //保存画板
     @PutMapping("/save")
     public Result saveBoard(@RequestBody Map<String,String> map){

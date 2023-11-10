@@ -46,7 +46,7 @@ public class RadioWaveServiceImpl implements RadioWaveService {
         //获取关系表中指定状态的用户
         List<Integer> idList = radioWaveMapper.selectWaitingByIdent(id, identification);
 
-        if (idList != null) {
+        if (idList != null&&idList.size()!=0) {
             //根据List返回结果
             return radioWaveMapper.selectUserById(idList);
         }

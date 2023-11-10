@@ -56,7 +56,7 @@ public interface RoomMapper {
 
     //加入所猜的关键词
     @Update("update room set character_guess_words = #{guessJson} where invitationCode = #{roomCode}")
-    void updateGuessWords(String roomCode, String guessJson);
+    void updateCharacterGuessWords(String roomCode, String guessJson);
 
     @Update("update room set job_guess_words = #{guessJson} where invitationCode = #{roomCode}")
     void updateJobGuessWords(String roomCode,String guessJson);

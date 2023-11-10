@@ -1,9 +1,7 @@
 package com.mapper;
 
 
-import com.pojo.OccupationExplode;
-import com.pojo.SearchHistory;
-import com.pojo.ToDo;
+import com.pojo.*;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -58,4 +56,25 @@ public interface OccupationExplodeMapper {
 
     @Update("update to_do set task = #{task},start_time = #{startTime},end_time = #{endTime},finish = #{finish},des = #{des} where user_id = #{userId} and stage = #{stage}")
     int updatePlan(ToDo toDo);
+
+
+//    获取通过内容获取详细价值观
+    @Select("SELECT * FROM occupational_values WHERE values_des= #{values}")
+    OccupationValues getOccupationValuesByValues(String values);
+
+//   获取用户的保存进度,这里返回的默认最大关卡，也就是目前的最大记录，
+
+    @Select("SELECT * FROM values_progress where user_id = #{userId} ORDER BY progress DESC LIMIT 1")
+    PersonalProgress getPersonalProgress(Integer userId);
+
+//    存入进度
+    @Insert("insert into values_progress (user_id,progress,explode_values) VALUES (#{userId}, #{progress}, #{explodeValues})")
+    int addPersonalProgress(PersonalProgress progress);
+
+//   获取是否已经有数据
+    @Select("select  * from values_progress where user_id = #{userId} and progress = #{progress}")
+    PersonalProgress getProgress(PersonalProgress progress);
+
+    @Update("update values_progress set progress = #{progress},explode_values=#{explodeValues} where user_id = #{userId}")
+    int updateProgress(PersonalProgress progress);
 }

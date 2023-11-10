@@ -1,9 +1,7 @@
 package com.service;
 
 
-import com.pojo.OccupationExplode;
-import com.pojo.SearchHistory;
-import com.pojo.ToDo;
+import com.pojo.*;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
@@ -38,7 +36,16 @@ public interface OccupationExplodeService {
 //  添加todo
     int addPlan(ToDo toDo,Integer userId);
 
-    int updatePlan(Integer userId,String coordinate,Integer stage);
+    Object updatePlan(Integer userId,String coordinate,Integer stage);
 
     ToDo getPlan(Integer userId,Integer stage);
+
+    int updatePlanDes(ToDo toDo,Integer userId) ;
+
+    List<OccupationValues>  getOccupationValues(List<String> valuesList);
+
+
+    int saveProgress(PersonalProgress progress);
+
+    PersonalProgress getProgress(Integer userId);
 }
