@@ -27,6 +27,7 @@ public class KafkaConsumerConfig {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        //        这里选择的是自动提交，记录消费位移记录，每次都从最前面的消息进行消费
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -46,5 +47,5 @@ public class KafkaConsumerConfig {
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }
-
+    //创建消费者配置->消费者工厂->创建监听容器工厂并且设置消费者工厂
 }

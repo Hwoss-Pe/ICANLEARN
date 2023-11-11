@@ -73,4 +73,11 @@ public class RedisConstant {
     //用户id对应已预览的帖子的过期时间(5min)
     public static final Long POST_PREVIEWS_IDS_EXPIRE_TIME = 300000L;
 
+    //======================职业价值观==========================
+
+    //职业价值观进度缓存
+    public static final String OCCUPATION_VALUES= "userId:";
+    //职业价值观进度缓存(半小时)
+    public static final Long OCCUPATION_VALUES_EXPIRE_TIME = 1800000L;
+
 }

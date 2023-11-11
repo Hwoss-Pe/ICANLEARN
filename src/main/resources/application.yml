@@ -43,7 +43,7 @@ spring:
         max-wait: 100
 
   kafka:
-    bootstrap-servers: 8.134.211.237:9092
+    bootstrap-servers: 47.113.222.54:9092
     listener:
       concurrency: 10
       poll-timeout: 1500
@@ -55,6 +55,9 @@ spring:
     producer:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        max:
+          retries: 3
 
 mybatis:
   configuration:
@@ -70,5 +73,7 @@ debug:
   mode:
     enabled: true
 
-
+hanlp:
+  customDictionaryPath: src/main/resources/hanlp/data/custom.txt
+  coreStopWordDictionaryPath: src/main/resources/hanlp/data/stop.txt
 

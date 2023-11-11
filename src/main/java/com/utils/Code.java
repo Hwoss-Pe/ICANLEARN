@@ -191,6 +191,11 @@ public class Code {
 
     //======================论坛=======================
 
+    //获取推荐关键词
+    public static final Integer GET_RECOMMEND_KEYWORDS_OK = 20801;
+    public static final Integer GET_RECOMMEND_KEYWORDS_ERR = 20801;
+
+
     //发布帖子
     public static final Integer UPLOAD_POST_OK = 20801;
     public static final Integer UPLOAD_POST_ERR = 10800;
@@ -215,13 +220,21 @@ public class Code {
     public static final Integer LIKE_POST_OK = 20851;
     public static final Integer LIKE_POST_ERR = 10850;
 
+    //获取当前用户点赞的帖子列表预览
+    public static final Integer GET_LIKES_OK = 20851;
+    public static final Integer GET_LIKES_ERR = 10850;
+
     //收藏帖子
     public static final Integer COLLECT_POST_OK = 20861;
     public static final Integer COLLECT_POST_ERR = 10860;
 
     //获取当前用户收藏的帖子列表预览
-    public static final Integer GET_COLLECTIONS_OK = 20871;
-    public static final Integer GET_COLLECTIONS_ERR = 10870;
+    public static final Integer GET_COLLECTIONS_OK = 20861;
+    public static final Integer GET_COLLECTIONS_ERR = 10860;
+
+    //获取用户发布过的帖子
+    public static final Integer GET_MY_POSTS_OK = 20871;
+    public static final Integer GET_MY_POSTS_ERR = 10870;
 
     //评论帖子
     public static final Integer COMMENT_POST_OK = 20881;
@@ -234,6 +247,30 @@ public class Code {
     //搜索帖子
     public static final Integer SEARCH_POST_OK = 20901;
     public static final Integer SEARCH_POST_ERR = 10900;
+
+    //========================= 5*5计划==================
+//    设置任务
+    public static final Integer SET_PLAN_OK = 20911;
+    public static final Integer SET_PLAN_ERR = 10910;
+    //    完成任务
+    public static final Integer FINISH_PLAN_OK = 20921;
+    public static final Integer FINISH_PLAN_ERR = 10920;
+    //    获取任务
+    public static final Integer GET_PLAN_OK = 20931;
+    public static final Integer GET_PLAN_ERR = 10930;
+    //    更新任务
+    public static final Integer UPDATE_PLAN_OK = 20941;
+    public static final Integer UPDATE_PLAN_ERR = 10940;
+    //=========================价值探索=======================================
+//    得出结果
+    public static final Integer VALUE_RESULT_OK = 20951;
+    public static final Integer VALUE_RESULT_ERR = 10950;
+    //    保存进度
+    public static final Integer VALUE_SAVE_OK = 20951;
+    public static final Integer VALUE_SAVE_ERR = 10950;
+    //    获取进度
+    public static final Integer VALUE_GET_OK = 20951;
+    public static final Integer VALUE_GET_ERR = 10950;
 
 
 }

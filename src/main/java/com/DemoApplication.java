@@ -6,7 +6,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.kafka.annotation.EnableKafka;
 
+@EnableKafka
 @SpringBootApplication
 public class DemoApplication {
     @Autowired
@@ -23,6 +25,8 @@ public class DemoApplication {
         servletListenerRegistrationBean.setListener(requestListener);
         return servletListenerRegistrationBean;
     }
+
+
 //    @Test
 //public void Test() {
 //

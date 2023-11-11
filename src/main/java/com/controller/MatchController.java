@@ -1,9 +1,11 @@
 package com.controller;
 
 
+import com.pojo.Cartoon;
 import com.pojo.MatchDegree;
 import com.pojo.Result;
 import com.pojo.User;
+import com.service.CartoonService;
 import com.service.MatchService;
 import com.utils.Code;
 import com.utils.JwtUtils;
@@ -25,6 +27,8 @@ import java.util.Map;
 public class MatchController {
     @Autowired
     private MatchService matchService;
+    @Autowired
+    public CartoonService cartoonService;
     @Autowired
     private HttpServletRequest req;
 
@@ -63,20 +67,20 @@ public class MatchController {
             return Result.error("缺少请求状态码");
         }
         List<String> statusList = map.get("status");
+//        这里如果是第一次点击就要1，其他都是0。因为要设置session
         if (statusList.get(0).equals("1")) {
             //如果是第一次进行操作
-            List<User> resultList = matchService.matching(id, map);
+            List<User> resultList = matchService.matching(id);
             session.setAttribute("resultList", resultList);
             //这里返回的就是直接处理过后数据
-            //这是类似缓存
-//            RedisUtil.sSetAndTime(matchKey,RedisConstant.MATCH_EXPIRE_TIME, resultList.toArray());
+
             redisUtil.lSetList(matchKey, resultList, RedisConstant.MATCH_EXPIRE_TIME);
         }
 
 //        long size = RedisUtil.sGetSetSize(matchKey);
         long size = redisUtil.lGetListSize(matchKey);
 
-        List<Object> userList;
+        List<User> userList;
         if (size < 5) {
             userList = redisUtil.lRemove(matchKey, size);
         } else {
@@ -86,12 +90,14 @@ public class MatchController {
             log.info("get Users failed");
             return Result.error(Code.MATCH_USER_ERR, "获取用户异常");
         }
+
+//        得到的userList要去获取Cartoon
+        List<User> resultList = matchService.getCartoon(userList);
 //        删除掉发送的数据
-//        redisUtil.sRemove(matchKey,userList.toArray());
-        return Result.success(Code.MATCH_USER_OK, userList);
+        return Result.success(Code.MATCH_USER_OK, resultList);
     }
 
-    //刷新匹配
+    //随机匹配或者刷新
     @PostMapping("/1")
     public Result matchOne() {
         String jwt = req.getHeader("token");
@@ -106,6 +112,8 @@ public class MatchController {
 
         List<Object> list = redisUtil.lRemove(matchKey, 1);
         User remove = (User) list.get(0);
+        Cartoon cartoon = cartoonService.getCartoon(remove.getId());
+        remove.setCartoon(cartoon);
         log.info("替换匹配用户:{}", remove);
 //        删除掉发送的数据
         return Result.success(Code.MATCH_USER_OK, remove);
@@ -113,7 +121,7 @@ public class MatchController {
 
 
     //清除匹配缓存
-    @GetMapping("")
+    @GetMapping
     public Result match(HttpSession session) {
         // 清除上一次匹配的缓存
 //        这里要做的是去重新放进session里面

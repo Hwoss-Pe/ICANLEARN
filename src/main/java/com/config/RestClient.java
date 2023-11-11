@@ -11,8 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class RestClient {
     @Bean
     public RestHighLevelClient createRestClient() {
-//        es的本地端口
-        HttpHost host = HttpHost.create("http://localhost:9200");
+        HttpHost host = HttpHost.create("http://8.134.211.237:9200");
         RestClientBuilder builder = org.elasticsearch.client.RestClient.builder(host);
         return new RestHighLevelClient(builder);
     }

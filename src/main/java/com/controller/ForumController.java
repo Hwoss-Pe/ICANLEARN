@@ -126,6 +126,21 @@ public class ForumController {
         return Result.error(Code.LIKE_POST_ERR, "未知错误...");
     }
 
+    //获取点赞列表
+    @GetMapping("/likes")
+    public Result getLikeList() {
+        try {
+            String jwt = req.getHeader("token");
+            Integer userId = JwtUtils.getId(jwt);
+            //获取点赞帖子的预览
+            List<ForumPostPreview> likeList = forumService.getLikeList(userId);
+            return Result.success(Code.GET_LIKES_OK, likeList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(Code.GET_LIKES_ERR, "操作失败");
+        }
+    }
+
     //收藏/取消收藏帖子
     @GetMapping("/collect/{postId}")
     public Result collect(@PathVariable String postId) {
@@ -158,6 +173,21 @@ public class ForumController {
             return Result.error(Code.GET_COLLECTIONS_ERR, "操作失败");
         }
 
+    }
+
+    //获取用户发布的帖子
+    @GetMapping("/published")
+    public Result getPublishedPostPreViews() {
+        try {
+            String jwt = req.getHeader("token");
+            Integer userId = JwtUtils.getId(jwt);
+            //获取发布过的帖子的预览
+            List<ForumPostPreview> publishedPosts = forumService.getPublishedPosts(userId);
+            return Result.success(Code.GET_MY_POSTS_OK, publishedPosts);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(Code.GET_MY_POSTS_ERR, "操作失败");
+        }
     }
 
     //评论帖子

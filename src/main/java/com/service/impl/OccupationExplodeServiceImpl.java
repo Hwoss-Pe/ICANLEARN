@@ -1,10 +1,11 @@
 package com.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.mapper.OccupationExplodeMapper;
-import com.pojo.OccupationExplode;
-import com.pojo.SearchHistory;
-import com.pojo.ToDo;
+import com.pojo.*;
 import com.service.OccupationExplodeService;
+import com.utils.BeanMapUtils;
+import com.utils.RedisConstant;
+import com.utils.RedisUtil;
 import io.jsonwebtoken.lang.Collections;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -37,6 +38,9 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
     @Autowired
     private RestHighLevelClient client;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
 
     //    搜索
     @Override
@@ -62,7 +66,7 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
     public List<SearchHistory> historyList(Integer userId) {
         List<SearchHistory> searchHistories = occupationExplodeMapper.historyList(userId);
 //        这里需要根据时间进行一个排序，采用最新的在前面
-        searchHistories.sort(Comparator.comparing(SearchHistory::getCreateTime));
+        searchHistories.sort((o1, o2) -> o1.getCreateTime().compareTo(o2.getCreateTime()));
         return searchHistories;
     }
 
@@ -208,16 +212,23 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
     }
 
     @Override
-    public int addPlan(ToDo toDo) {
-        String s = Arrays.deepToString(toDo.getDes());
-        toDo.setDesStr(s);
+    public int addPlan(ToDo toDo,Integer userId) {
+
+//        这里还需要去判断该原来有没有计划表
+        ToDo plan = occupationExplodeMapper.getPlan(userId, toDo.getStage());
+//        如果原来有计划表就紧就进行更新2的操作，没有就是添加1
+        if(plan!=null){
+            return updatePlanDes(toDo, userId);
+        }
+        String s = Arrays.deepToString(toDo.getDesArray());
+        toDo.setDes(s);
         String[][] finnishArray = new String[5][5];
 
 
         for (String[] strings : finnishArray) {
             Arrays.fill(strings, "0");
         }
-        toDo.setFinishStr(Arrays.deepToString(finnishArray));
+        toDo.setFinish(Arrays.deepToString(finnishArray));
 
         // 先将字符串转换为一维数组
 
@@ -225,40 +236,73 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
     }
 
     @Override
-    public boolean updatePlan(Integer userId, String coordinate) {
-
-
+    public Object updatePlan(Integer userId, String coordinate,Integer stage) {
 
         String[] split = coordinate.split(",");
         int x = Integer.parseInt(split[0]);
         int y = Integer.parseInt(split[1]);
         if (x >= 5 || y >= 5) {
-            return false;
+            return 0;
         }
 //        必须根据id先获取里面的数据
-        ToDo plan = occupationExplodeMapper.getPlan();
-        String finishStr = plan.getFinishStr();
+        ToDo plan = occupationExplodeMapper.getPlan(userId,stage);
+        String finishStr = plan.getFinish();
         String[][] finish = convert(finishStr);
         if(finish[x][y].equals("1")){
-            return false;
+            return 0;
         }
         finish[x][y] = "1";
 //        更新状态后进行去判断是否连线
-        boolean bingo = isBingo(x, y, finish, 5);
-
-
+        List<int[]> bingo = isBingo(x, y, finish, 5);
+        boolean bingoAll = bingoAll(finish);
         String newFinishStr = Arrays.deepToString(finish);
-        plan.setFinishStr(newFinishStr);
-        occupationExplodeMapper.updatePlan(userId,plan);
-
-        return bingo;
+        plan.setFinish(newFinishStr);
+        occupationExplodeMapper.updatePlan(plan);
+//        1表示添加成功，0添加失败，2表示直线，3表示全部
+        if(bingoAll){
+            return 3;
+        }
+        if(bingo.size()>0){
+            return bingo;
+        }
+        return 1;
     }
+
+
+    @Override
+    public ToDo getPlan(Integer userId,Integer stage) {
+
+        ToDo plan = occupationExplodeMapper.getPlan(userId, stage);
+        if (plan==null){
+            return null;
+        }
+        plan.setDesArray(convert(plan.getDes()));
+        plan.setFinishArray(convert(plan.getFinish()));
+        return plan;
+    }
+
+
+    @Override
+    public int updatePlanDes(ToDo toDo,Integer userId) {
+        toDo.setUserId(userId);
+//        再去获取当前状态坐标并且转换
+        ToDo plan = getPlan(userId, toDo.getStage());
+        toDo.setFinish(plan.getFinish());
+
+        String s = Arrays.deepToString(toDo.getDesArray());
+        toDo.setDes(s);
+        if(occupationExplodeMapper.updatePlan(toDo)>0){
+            return 2;
+        }
+        return 0;
+    }
+
 
 
     //    把字符串转成二维数组
     public String[][] convert(String s) {
 // 移除首尾的方括号
-        String[] innerArrays = s.substring(2, s.length() - 2).split("], \\[");
+        String[] innerArrays = s.substring(2, s.length() - 2).split("\\], \\[");
 
 // 构建新的二维数组
         String[][] newArray = new String[innerArrays.length][];
@@ -269,56 +313,130 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
         return newArray;
     }
 
-    public boolean isBingo(int x,int y ,String[][] finish,int N) {
+    public List<int[]> isBingo(int x,int y ,String[][] finish,int N) {
         int count = 0;
-
+        List<int[]> coordinates = new ArrayList<>();
         // 检查横向是否有 N 个相同的棋子连成一条线
         for (int i = 0; i < N ; i++) {
             count = finish[x][i].equals("1") ? count + 1 : 0;
+            coordinates.add(new int[]{x, i});
             if (count == N) {
-                return true;
+                return coordinates;
             }
         }
-
+        coordinates.clear();
         // 检查纵向是否有 N 个相同的棋子连成一条线
         count = 0;
-        for (int i = 0; i <= N; i++) {
-            count = finish[x][i].equals("1") ? count + 1 : 0;
+        for (int i = 0; i < N; i++) {
+            count = finish[i][y].equals("1") ? count + 1 : 0;
+            coordinates.add(new int[]{i, y});
             if (count == N) {
-                return true;
+                return coordinates;
             }
         }
 
         // 检查从左上到右下的对角线是否有 N 个相同的棋子连成一条线
         count = 0;
-
-        for (int i = 1; i < Math.min(x, y); i++) {
+        coordinates.clear();
+        for (int i = 1; i <= Math.min(x, y); i++) {
 
             count = finish[x - i][y - i].equals("1") ? count + 1 : 0;
+
+            coordinates.add(new int[]{x-i, y-i});
         }
         for (int i = 0; i < N-Math.max(x,y); i++) {
             count = finish[x + i][y + i].equals("1") ? count + 1 : 0;
+            coordinates.add(new int[]{x+i, y+i});
             if (count == N) {
-                return true;
+                return coordinates;
             }
         }
 
 //     / 检查从右上到左下的对角线是否有 N 个相同的棋子连成一条线
         count = 0;
+        coordinates.clear();
         for (int i = 1; i < Math.min(x + 1, finish.length - y); i++) {
             count = finish[x - i][y + i].equals("1") ? count + 1 : 0;
+            coordinates.add(new int[]{x-i, y+i});
             if (count == N) {
-                return true;
+                return coordinates;
             }
         }
-        for (int i = 0; i < N - count && x + i < finish.length && y - i >= 0; i++) {
+        for (int i = 0; x + i < finish.length && y - i >= 0; i++) {
             count = finish[x + i][y - i].equals("1") ? count + 1 : 0;
+            coordinates.add(new int[]{x+i, y-i});
             if (count == N) {
-                return true;
+                return coordinates;
             }
+        }
+        coordinates.clear();
+        // 如果以上都没有返回 true，说明没有连成 N 子棋
+        return coordinates;
+    }
+
+
+
+    public boolean bingoAll(String[][] finish){
+        for (String[] strings : finish) {
+            for (String string : strings) {
+                if (string.equals("0")) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
+    @Override
+    public List<OccupationValues> getOccupationValues(List<String> values) {
+        List<OccupationValues> valuesList = new ArrayList<>();
+        for (String value : values) {
+            OccupationValues occupationValuesByValues = occupationExplodeMapper.getOccupationValuesByValues(value);
+            valuesList.add(occupationValuesByValues);
+        }
+        return valuesList;
+    }
+
+
+    @Override
+    public int saveProgress(PersonalProgress progress) {
+//        保存先保存到redis里面进行存储，并且计时，时间到的时候才去写入数据库，保存最后的结果
+        Map<String, Object> map = BeanMapUtils.beanToMap(progress);
+
+
+        String userId = progress.getUserId()+"";
+        redisUtil.hmset(RedisConstant.OCCUPATION_VALUES+userId,map, RedisConstant.OCCUPATION_VALUES_EXPIRE_TIME);
+//存入数据库,这里的逻辑改成去过期后直接写入数据库
+//        这里应该去判断里面原本有没有数据
+        PersonalProgress personalProgress = occupationExplodeMapper.getProgress(progress);
+        progress.convertValuesListToValues();
+        if(personalProgress==null){
+
+            occupationExplodeMapper.addPersonalProgress(progress);
+        }else {
+//            更新
+            occupationExplodeMapper.updateProgress(progress);
         }
 
-        // 如果以上都没有返回 true，说明没有连成 N 子棋
-        return false;
+        return 0;
+    }
+
+    @Override
+    public PersonalProgress getProgress(Integer userId) {
+//        保存先保存到redis里面进行存储，并且计时，时间到的时候才去写入数据库，保存最后的结果
+        String userIdStr = userId + "";
+        if(redisUtil.hasKey(userIdStr)){
+            Map<String, Object> map = redisUtil.hmget(userIdStr);
+            return BeanMapUtils.mapToBean(map,PersonalProgress.class);
+        }else {
+//            去数据库里面获取
+            PersonalProgress personalProgress = occupationExplodeMapper.getPersonalProgress(userId);
+            if(personalProgress==null){
+                return null;
+            }
+            personalProgress.convertValuesToValuesList();
+            return personalProgress;
+        }
     }
 }

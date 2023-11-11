@@ -77,7 +77,7 @@ public interface ForumMapper {
     @Select("select p.id,p.title,p.labels,p.publisher_id,pc.createTime from post_collections pc " +
             "join posts p on pc.post_id = p.id " +
             "where pc.user_id = #{userId} and p.visible_scope != -1")
-    List<ForumPostPreview> selectPostPreviewsByUserId(Integer userId);
+    List<ForumPostPreview> selectCollectPostPreviewsByUserId(Integer userId);
 
     //获取帖子对应的评论
     @Select("select id, post_id, user_id, content, create_time, parent_comment_id from post_comments where post_id = #{postId}")
@@ -106,6 +106,14 @@ public interface ForumMapper {
     //查询与搜索内容匹配的帖子id
     @Select("select id from posts where labels like CONCAT('%', #{keyword}, '%') or title like CONCAT('%',#{keywords},'%')")
     List<Integer> selectIdsBySearchContent(String keyWords);
+
+    @Select("select p.id,p.title,p.labels,p.create_time from post_like pl " +
+            "join posts p on p.id = pl.post_id " +
+            "where pl.user_id = #{userId} and p.visible_scope != -1")
+    List<ForumPostPreview> selectLikePostPreviewsByUserId(Integer userId);
+
+    @Select("select id,title,labels,create_time from posts where publisher_id = #{userId}")
+    List<ForumPostPreview> selectPublishedPostPreViewsByUserId(Integer userId);
 
 //    //根据id列表查询帖子预览
 //    List<ForumPostPreview> selectPostPreviewsByIds(List<Integer> ids, Integer userId);

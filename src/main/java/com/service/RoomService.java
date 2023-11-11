@@ -21,7 +21,7 @@ public interface RoomService {
     //存储给房主猜的选词
     Integer setGuessWords(Integer id, List<String> words, String roomCode, String type);
 
-    //判断房主猜词是否正确
+    //猜词
     List<String> guessWords(Integer id, List<String> guess, String roomCode, String type);
 
 
@@ -29,6 +29,7 @@ public interface RoomService {
     List<String> getKeyWordsPrompt(Integer num,String promptName);
 
     List<String> getKeyWords(String roomCode, String type);
+
     int saveBoard( String invitationCode,Integer userId,String base64);
 
     int updateKeywords(String content,Integer userId);

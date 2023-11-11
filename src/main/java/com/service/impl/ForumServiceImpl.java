@@ -12,6 +12,7 @@ import com.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -40,6 +41,7 @@ public class ForumServiceImpl implements ForumService {
     }
 
     //上传帖子
+    @Transactional
     @Override
     public Integer uploadPost(ForumPost forumPost) {
         //获取当前计数器的自增id
@@ -59,6 +61,7 @@ public class ForumServiceImpl implements ForumService {
     }
 
     //修改帖子开放状态
+    @Transactional
     @Override
     public boolean updateStatus(Integer status, Integer publisherId, String postId) {
         if (!judgePostIsValid(postId)) {
@@ -103,6 +106,7 @@ public class ForumServiceImpl implements ForumService {
     }
 
     //删除帖子
+    @Transactional
     @Override
     public boolean deletePost(Integer publisherId, String postId) {
         String postKey = getPostKey(postId);
@@ -152,6 +156,7 @@ public class ForumServiceImpl implements ForumService {
 
 
     //(取消)点赞帖子
+    @Transactional
     @Override
     public Integer likePost(Integer userId, String postId) {
         Integer status = 1;
@@ -213,6 +218,7 @@ public class ForumServiceImpl implements ForumService {
     }
 
     //收藏帖子
+    @Transactional
     @Override
     public Integer collectPost(Integer userId, String postId) {
         Integer status = 1;
@@ -267,10 +273,17 @@ public class ForumServiceImpl implements ForumService {
     //获取用户的收藏预览表
     @Override
     public List<ForumPostPreview> getCollectList(Integer userId) {
-        return forumMapper.selectPostPreviewsByUserId(userId);
+        return forumMapper.selectCollectPostPreviewsByUserId(userId);
+    }
+
+    //获取用户的点赞预览表
+    @Override
+    public List<ForumPostPreview> getLikeList(Integer userId) {
+        return forumMapper.selectLikePostPreviewsByUserId(userId);
     }
 
     //评论帖子
+    @Transactional
     @Override
     public Integer commentPost(ForumPostComment forumPostComment) {
         Integer postId = forumPostComment.getPostId();
@@ -287,6 +300,7 @@ public class ForumServiceImpl implements ForumService {
 
 
     //删除评论
+    @Transactional
     @Override
     public boolean deletePostComment(Integer userId, String commentId) {
         //判断是否为操作者的评论
@@ -321,6 +335,12 @@ public class ForumServiceImpl implements ForumService {
             return null;
         }
         return calibrateAndProcessIds(list, userId);
+    }
+
+    //获取该用户发布的帖子
+    @Override
+    public List<ForumPostPreview> getPublishedPosts(Integer userId) {
+        return forumMapper.selectPublishedPostPreViewsByUserId(userId);
     }
 
     //获取postId对应的帖子详细信息

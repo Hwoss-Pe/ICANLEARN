@@ -5,6 +5,7 @@ import com.pojo.Result;
 import com.utils.Code;
 import com.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 public class LoginCheckInterceptor implements HandlerInterceptor {
 
+    @Value("${debug.mode.enabled}")
     private boolean debugModeEnabled;
 
 

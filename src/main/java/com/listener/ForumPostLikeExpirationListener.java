@@ -47,8 +47,10 @@ public class ForumPostLikeExpirationListener extends KeyExpirationEventMessageLi
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
+//        根据消息对象去获取字节数组，也可以直接toString
         String expiredKey = new String(message.getBody());
         log.info("键：{} 过期", expiredKey);
+//        这里返回不是他的信息，拓展性
         if (!expiredKey.startsWith(RedisConstant.FORUM_POST_LIKE)) {
             return;
         }
