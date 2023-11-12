@@ -192,6 +192,11 @@ public class Code {
 
     //======================论坛=======================
 
+    //获取推荐关键词
+    public static final Integer GET_RECOMMEND_KEYWORDS_OK = 20801;
+    public static final Integer GET_RECOMMEND_KEYWORDS_ERR = 20801;
+
+
     //发布帖子
     public static final Integer UPLOAD_POST_OK = 20801;
     public static final Integer UPLOAD_POST_ERR = 10800;
@@ -216,13 +221,21 @@ public class Code {
     public static final Integer LIKE_POST_OK = 20851;
     public static final Integer LIKE_POST_ERR = 10850;
 
+    //获取当前用户点赞的帖子列表预览
+    public static final Integer GET_LIKES_OK = 20851;
+    public static final Integer GET_LIKES_ERR = 10850;
+
     //收藏帖子
     public static final Integer COLLECT_POST_OK = 20861;
     public static final Integer COLLECT_POST_ERR = 10860;
 
     //获取当前用户收藏的帖子列表预览
-    public static final Integer GET_COLLECTIONS_OK = 20871;
-    public static final Integer GET_COLLECTIONS_ERR = 10870;
+    public static final Integer GET_COLLECTIONS_OK = 20861;
+    public static final Integer GET_COLLECTIONS_ERR = 10860;
+
+    //获取用户发布过的帖子
+    public static final Integer GET_MY_POSTS_OK = 20871;
+    public static final Integer GET_MY_POSTS_ERR = 10870;
 
     //评论帖子
     public static final Integer COMMENT_POST_OK = 20881;

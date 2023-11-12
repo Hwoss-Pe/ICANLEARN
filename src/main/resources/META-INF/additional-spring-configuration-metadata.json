@@ -1,0 +1,19 @@
+{
+  "properties": [
+    {
+      "name": "debug.mode.enabled",
+      "type": "java.lang.String",
+      "description": "Description for debug.mode.enabled."
+    },
+    {
+      "name": "hanlp.customDictionaryPath",
+      "type": "java.lang.String",
+      "description": "Description for hanlp.customDictionaryPath."
+    },
+    {
+      "name": "hanlp.coreStopWordDictionaryPath",
+      "type": "java.lang.String",
+      "description": "Description for hanlp.coreStopWordDictionaryPath."
+    }
+  ]
+}

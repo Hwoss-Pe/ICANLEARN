@@ -47,7 +47,7 @@ spring:
         timeout: 2000
 #
   kafka:
-    bootstrap-servers: 8.134.211.237:9092
+    bootstrap-servers: 47.113.222.54:9092
     listener:
       concurrency: 10
       poll-timeout: 1500
@@ -59,12 +59,17 @@ spring:
     producer:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        max:
+          retries: 3
 #定义生产者和消费者的序列化和反序列化都是用String，设置最大轮询]
 
   elasticsearch:
     uris: 8.134.211.237:9200
 #    uris: 127.0.0.1:9200
-
+hanlp:
+  customDictionaryPath: hanlp/data/customDictionary.txt
+  coreStopWordDictionaryPath: hanlp/data/stop.txt
 
 #驼峰命名自动
 mybatis:

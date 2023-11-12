@@ -29,6 +29,9 @@ public interface ForumService {
     //获取用户的收藏表
     List<ForumPostPreview> getCollectList(Integer userId);
 
+    //获取用户的点赞表
+    List<ForumPostPreview> getLikeList(Integer userId);
+
     //评论帖子
     Integer commentPost(ForumPostComment forumPostComment);
 
@@ -40,4 +43,7 @@ public interface ForumService {
 
     //搜索
     List<ForumPostPreview> searchKeyWords(Integer userId, String keywords);
+
+    //获取用户发布过的帖子
+    List<ForumPostPreview> getPublishedPosts(Integer userId);
 }
