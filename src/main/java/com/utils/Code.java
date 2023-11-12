@@ -193,7 +193,7 @@ public class Code {
 
     //获取推荐关键词
     public static final Integer GET_RECOMMEND_KEYWORDS_OK = 20801;
-    public static final Integer GET_RECOMMEND_KEYWORDS_ERR = 20801;
+    public static final Integer GET_RECOMMEND_KEYWORDS_ERR = 10800;
 
 
     //发布帖子

@@ -1,60 +1,35 @@
-package com.listener;
+package com.redis.handler;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.mapper.ForumMapper;
 import com.pojo.ForumPostLike;
+import com.redis.RedisExpiredKeyHandler;
 import com.utils.RedisConstant;
 import com.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.connection.Message;
-import org.springframework.data.redis.listener.KeyExpirationEventMessageListener;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 
-/**
- * TODO：此方法过于依赖redis
- * 若redis宕机，则会导致数据丢失，后续会进行修改
- * 改为消息队列
- */
+@Service
 @Slf4j
-@Component
-public class ForumPostLikeExpirationListener extends KeyExpirationEventMessageListener {
+public class ForumPostLikeExpiredKeyHandler implements RedisExpiredKeyHandler {
 
-    @Autowired
     private ForumMapper forumMapper;
 
-    @Autowired
     private RedisUtil redisUtil;
 
-
-    @Autowired
-    public ForumPostLikeExpirationListener(RedisMessageListenerContainer listenerContainer) {
-        super(listenerContainer);
+    public ForumPostLikeExpiredKeyHandler(RedisUtil redisUtil, ForumMapper forumMapper) {
+        this.redisUtil = redisUtil;
+        this.forumMapper = forumMapper;
     }
 
-//    @Override
-//    protected void doRegister(RedisMessageListenerContainer listenerContainer) {
-//        // 添加消息监听适配器，并指定订阅的主题为 "post_like:*__keyevent@0__:expired"
-//        // 这里是订阅以 "post_like:" 开头，以 "__keyevent@0__:expired" 结尾的频道
-//        listenerContainer.addMessageListener(this, new PatternTopic("post_like:*__keyevent@0__:expired"));
-//    }
-
     @Override
-    public void onMessage(Message message, byte[] pattern) {
-//        根据消息对象去获取字节数组，也可以直接toString
-        String expiredKey = new String(message.getBody());
-        log.info("键：{} 过期", expiredKey);
-//        这里返回不是他的信息，拓展性
-        if (!expiredKey.startsWith(RedisConstant.FORUM_POST_LIKE)) {
-            return;
-        }
-        //获取帖子id
+    public void handleExpiredKey(String expiredKey) {
+//        获取帖子id
         Integer id = Integer.parseInt(expiredKey.substring(RedisConstant.FORUM_POST_LIKE.length()));
         //获取备份key
         String backupKey = RedisConstant.BACKUP_FORUM_POST_LIKE + id;
@@ -89,5 +64,4 @@ public class ForumPostLikeExpirationListener extends KeyExpirationEventMessageLi
         }
         return list;
     }
-
 }

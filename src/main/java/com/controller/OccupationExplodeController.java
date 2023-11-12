@@ -1,6 +1,6 @@
 package com.controller;
-
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.pojo.*;
 import com.service.OccupationExplodeService;
 import com.utils.Code;
@@ -8,17 +8,25 @@ import com.utils.JwtUtils;
 import com.utils.RedisUtil;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.ConditionalOnDefaultWebSecurity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -194,14 +202,15 @@ public class OccupationExplodeController {
     }
 
 
+
     @PostMapping("/finish")
-    public Result finishPlan(@RequestBody Map<String, String> map) {
+    public Result finishPlan(@RequestBody Map<String, String> map){
         String coordinate = map.get("coordinate");
         String stageStr = map.get("stage");
         int stage = Integer.parseInt(stageStr);
         String token = req.getHeader("token");
         Integer userId = JwtUtils.getId(token);
-        Object bingo = occupationExplodeService.updatePlan(userId, coordinate, stage);
+        Object bingo = occupationExplodeService.updatePlan(userId, coordinate,stage);
         if (bingo instanceof Integer) {
             int result = (int) bingo;
             return switch (result) {
@@ -218,14 +227,13 @@ public class OccupationExplodeController {
             return Result.error(Code.FINISH_PLAN_ERR, "返回值类型错误");
         }
     }
-
     //  获取计划
     @GetMapping("/my-plan/{stage}")
-    public Result getPlan(@PathVariable Integer stage) {
+    public Result getPlan(@PathVariable Integer stage ){
 
         Integer userId = JwtUtils.getId(req.getHeader("token"));
-        ToDo plan = occupationExplodeService.getPlan(userId, stage);
-        return plan != null ? Result.success(Code.GET_PLAN_OK, plan) : Result.error(Code.GET_PLAN_ERR, null);
+        ToDo plan = occupationExplodeService.getPlan(userId,stage);
+        return plan!=null ? Result.success(Code.GET_PLAN_OK,plan) : Result.error(Code.GET_PLAN_ERR,null);
     }
 
 
@@ -238,18 +246,44 @@ public class OccupationExplodeController {
         toDo.setUserId(userId);
         int i = occupationExplodeService.addPlan(toDo, userId);
         //        如果原来有计划表就紧就进行更新2的操作，没有就是添加1
-        if (i == 1) {
-            return Result.success(Code.SET_PLAN_OK, "新增成功");
-        } else if (i == 2) {
-            return Result.success(Code.UPDATE_PLAN_OK, "更新成功");
+        if(i==1){
+            return Result.success(Code.SET_PLAN_OK,"新增成功");
+        }else if(i==2){
+            return   Result.success(Code.UPDATE_PLAN_OK,"更新成功");
         }
-        return Result.error(Code.SET_PLAN_ERR, "操作失败");
+        return Result.error(Code.SET_PLAN_ERR,"操作失败");
     }
+
+////    更新计划内容
+//    @PutMapping("/update")
+//    public Result updatePlanDes(@RequestBody ToDo toDo){
+//        String token = req.getHeader("token");
+//        Integer id = JwtUtils.getId(token);
+//        int i = occupationExplodeService.updatePlanDes(toDo,id);
+//        return i>0?Result.success(Code.UPDATE_PLAN_OK,"更新成功"):
+//                Result.error(Code.UPDATE_PLAN_ERR,"更新失败");
+//    }
+
+//价值观探索，把得到的数据进行缓存里面一小时就行，超过一小时后再把数据写进数据库
+// ，这样在数据库可以保证下次进来的时候就可以保存关卡进度
+//    @PostMapping("/next")
+//    public Result nextProgress(@RequestBody PersonalProgress progress){
+//        String token = req.getHeader("token");
+//        Integer userId = JwtUtils.getId(token);
+//        progress.setUserId(userId);
+//    }
+
+
+
+
+
+
+
 
 
 
     @PostMapping("/result")
-    public Result getDetails(@RequestBody PersonalProgress progress) {
+    public Result getDetails(@RequestBody PersonalProgress progress){
 //        结果分析
         String token = req.getHeader("token");
         Integer userId = JwtUtils.getId(token);
@@ -257,36 +291,35 @@ public class OccupationExplodeController {
         List<String> values = progress.getValuesList();
         List<OccupationValues> occupationValues = occupationExplodeService.getOccupationValues(values);
         occupationExplodeService.saveProgress(progress);
-        return occupationValues != null ?
-                Result.success(Code.VALUE_RESULT_OK, occupationValues) :
-                Result.error(Code.VALUE_RESULT_ERR, "获取详细信息失败");
+        return occupationValues!=null?
+                Result.success(Code.VALUE_RESULT_OK,occupationValues):
+                Result.error(Code.VALUE_RESULT_ERR,"获取详细信息失败");
     }
 
 
     //    点击下一关后进行保存，让下次关闭后可以进行
     @PostMapping("/save")
-    public Result saveProgress(@RequestBody PersonalProgress progress) {
+    public Result saveProgress(@RequestBody PersonalProgress progress){
         String token = req.getHeader("token");
         Integer userId = JwtUtils.getId(token);
         progress.setUserId(userId);
-        int i = occupationExplodeService.saveProgress(progress);
-        return i > 0 ? Result.success(Code.VALUE_SAVE_OK, "保存成功") :
-                Result.error(Code.VALUE_SAVE_ERR, "保存失败");
-
+        occupationExplodeService.saveProgress(progress);
+        return Result.success(Code.VALUE_SAVE_OK,"保存成功");
     }
-
     //    点击后去查看有没有内容，有的话读值，没有就不返回
     @GetMapping("/progress")
-    public Result getProgress() {
+    public Result getProgress(){
         String token = req.getHeader("token");
         Integer userId = JwtUtils.getId(token);
-        PersonalProgress progress = occupationExplodeService.getProgress(userId);
-        if (progress == null) {
+        List<PersonalProgress> progresses = occupationExplodeService.getProgress(userId);
+        if (progresses == null){
             return Result.success(Code.VALUE_GET_OK, null);
-        } else {
-            return Result.success(Code.VALUE_GET_OK, progress);
+        }else {
+            return Result.success(Code.VALUE_GET_OK,progresses);
         }
     }
+
+
 
 
 //    //获取单个
@@ -307,6 +340,7 @@ public class OccupationExplodeController {
 //    @GetMapping("/3")
 //    public  void addAllL() throws IOException {
 //        HttpHost host = HttpHost.create("http://8.134.211.237:9200");
+////        HttpHost host = HttpHost.create("http://localhost:9200");
 //        RestClientBuilder builder = RestClient.builder(host);
 //        client = new RestHighLevelClient(builder);
 //        List<OccupationExplode> occupations = occupationExplodeService.getOccupations();

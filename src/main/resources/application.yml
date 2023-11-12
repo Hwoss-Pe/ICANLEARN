@@ -59,6 +59,9 @@ spring:
         max:
           retries: 3
 
+  elasticsearch:
+    uris: 8.134.211.237:9200
+
 mybatis:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

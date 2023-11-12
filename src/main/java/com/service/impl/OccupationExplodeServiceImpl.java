@@ -22,6 +22,7 @@ import org.elasticsearch.search.suggest.SuggestBuilder;
 import org.elasticsearch.search.suggest.SuggestBuilders;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,7 +67,7 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
     public List<SearchHistory> historyList(Integer userId) {
         List<SearchHistory> searchHistories = occupationExplodeMapper.historyList(userId);
 //        这里需要根据时间进行一个排序，采用最新的在前面
-        searchHistories.sort((o1, o2) -> o1.getCreateTime().compareTo(o2.getCreateTime()));
+        searchHistories.sort(Comparator.comparing(SearchHistory::getCreateTime));
         return searchHistories;
     }
 
@@ -188,27 +189,25 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
     @Override
     @Transactional
     public void addLike(Integer userId, Integer id) {
-
-        occupationExplodeMapper.addLike(id);
+        handleLike(1,userId,id);
     }
 
     @Override
     @Transactional
     public void cancelLike(Integer userId, Integer id) {
-        occupationExplodeMapper.cancelLike(id);
+        handleLike(0,userId,id);
     }
 
     @Override
     @Transactional
     public void addCollection(Integer userId, Integer id) {
-//        对于收藏后还要进入个人主页，这里先留一part（未实现）
-        occupationExplodeMapper.addCollection(id);
+        handleCollection(1,userId,id);
     }
 
     @Override
     @Transactional
     public void cancelCollection(Integer userId, Integer id) {
-        occupationExplodeMapper.cancelCollection(id);
+        handleCollection(0,userId,id);
     }
 
     @Override
@@ -302,7 +301,7 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
     //    把字符串转成二维数组
     public String[][] convert(String s) {
 // 移除首尾的方括号
-        String[] innerArrays = s.substring(2, s.length() - 2).split("\\], \\[");
+        String[] innerArrays = s.substring(2, s.length() - 2).split("], \\[");
 
 // 构建新的二维数组
         String[][] newArray = new String[innerArrays.length][];
@@ -403,40 +402,113 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
     public int saveProgress(PersonalProgress progress) {
 //        保存先保存到redis里面进行存储，并且计时，时间到的时候才去写入数据库，保存最后的结果
         Map<String, Object> map = BeanMapUtils.beanToMap(progress);
-
-
         String userId = progress.getUserId()+"";
-        redisUtil.hmset(RedisConstant.OCCUPATION_VALUES+userId,map, RedisConstant.OCCUPATION_VALUES_EXPIRE_TIME);
-//存入数据库,这里的逻辑改成去过期后直接写入数据库
-//        这里应该去判断里面原本有没有数据
-        PersonalProgress personalProgress = occupationExplodeMapper.getProgress(progress);
-        progress.convertValuesListToValues();
-        if(personalProgress==null){
-
-            occupationExplodeMapper.addPersonalProgress(progress);
-        }else {
-//            更新
-            occupationExplodeMapper.updateProgress(progress);
+        if (progress.getProgress()==1){
+//            缓存第一关的
+            redisUtil.hmset(RedisConstant.OCCUPATION_VALUES_1+userId,map, RedisConstant.OCCUPATION_VALUES_EXPIRE_TIME);
+            redisUtil.hmset(RedisConstant.OCCUPATION_VALUES_COPY_1+userId,map, RedisConstant.OCCUPATION_VALUES_EXPIRE_TIME_COPY);
+        }else if(progress.getProgress()==2){
+            redisUtil.hmset(RedisConstant.OCCUPATION_VALUES_2+userId,map, RedisConstant.OCCUPATION_VALUES_EXPIRE_TIME);
+            redisUtil.hmset(RedisConstant.OCCUPATION_VALUES_COPY_2+userId,map, RedisConstant.OCCUPATION_VALUES_EXPIRE_TIME_COPY);
         }
-
         return 0;
     }
 
+
     @Override
-    public PersonalProgress getProgress(Integer userId) {
+    public List<PersonalProgress> getProgress(Integer userId) {
 //        保存先保存到redis里面进行存储，并且计时，时间到的时候才去写入数据库，保存最后的结果
         String userIdStr = userId + "";
-        if(redisUtil.hasKey(userIdStr)){
-            Map<String, Object> map = redisUtil.hmget(userIdStr);
-            return BeanMapUtils.mapToBean(map,PersonalProgress.class);
-        }else {
+        List<PersonalProgress > result = new ArrayList<>();
+        int flag = 0;
+        if(redisUtil.hasKey(RedisConstant.OCCUPATION_VALUES_1+userIdStr)){
+            Map<String, Object> map1 = redisUtil.hmget(RedisConstant.OCCUPATION_VALUES_1+userIdStr);
+            PersonalProgress progress1 = BeanMapUtils.mapToBean(map1, PersonalProgress.class);
+            result.add(progress1);
+            flag = 1;
+        }
+        if(redisUtil.hasKey(RedisConstant.OCCUPATION_VALUES_2+userIdStr)){
+            Map<String, Object> map1 = redisUtil.hmget(RedisConstant.OCCUPATION_VALUES_2+userIdStr);
+            PersonalProgress progress2 = BeanMapUtils.mapToBean(map1, PersonalProgress.class);
+            result.add(progress2);
+            flag = 1;
+        }
+
 //            去数据库里面获取
-            PersonalProgress personalProgress = occupationExplodeMapper.getPersonalProgress(userId);
-            if(personalProgress==null){
+        if(flag==0){
+            result = occupationExplodeMapper.getPersonalProgress(userId);
+            if(result==null){
                 return null;
             }
-            personalProgress.convertValuesToValuesList();
-            return personalProgress;
+            for (PersonalProgress progress : result) {
+                progress.convertValuesToValuesList();
+            }
         }
+
+        return result;
     }
+
+    public void handleLike(Integer status,Integer userId, Integer id){
+        OccupationLike occupationLike = new OccupationLike();
+        occupationLike.setExplodeId(id);
+        occupationLike.setCreateTime(new Date());
+        occupationLike.setUserId(userId);
+        occupationLike.setStatus(status);
+//        先从库查询这个人，采用更新数据库字段的方式
+        Map<String, Object> stringObjectMap = BeanMapUtils.beanToMap(occupationLike);
+        List<Map<String, Object>> list = new ArrayList<>();
+        if(redisUtil.hasKey(RedisConstant.OCCUPATION_LIKE)){
+            list = (List<Map<String, Object>>)redisUtil.get(RedisConstant.OCCUPATION_LIKE);
+            boolean flag = false;
+            for (Map<String, Object> map : list) {
+                OccupationLike bean = BeanMapUtils.mapToBean(map, OccupationLike.class);
+                if(bean.getUserId().equals(userId) && bean.getExplodeId().equals(id)){
+//                    证明是有点赞记录的，只需要更改status的变量为1
+                    bean.setStatus(1);
+//                    获取到redis里面的数据，然后删除原有的数据，添加更新后的数据
+                    list.add(BeanMapUtils.beanToMap(bean));
+                    list.remove(map);
+                    flag = true;
+                }
+            }
+            if(!flag){
+                list.add(stringObjectMap);
+            }
+//            如果没有这个的记录就进行添加
+
+        }
+        redisUtil.set(RedisConstant.OCCUPATION_LIKE, list);
+    }
+
+    public void handleCollection(Integer status,Integer userId, Integer id){
+        OccupationCollection occupationCollection = new OccupationCollection();
+        occupationCollection.setExplodeId(id);
+        occupationCollection.setCreateTime(new Date());
+        occupationCollection.setUserId(userId);
+        occupationCollection.setStatus(status);
+        Map<String, Object> stringObjectMap = BeanMapUtils.beanToMap(occupationCollection);
+        List<Map<String, Object>> list = new ArrayList<>();
+        if(redisUtil.hasKey(RedisConstant.OCCUPATION_Collection)){
+            list = (List<Map<String, Object>>)redisUtil.get(RedisConstant.OCCUPATION_Collection);
+            boolean flag = false;
+            for (Map<String, Object> map : list) {
+                OccupationCollection bean = BeanMapUtils.mapToBean(map, OccupationCollection.class);
+                if(bean.getUserId().equals(userId) && bean.getExplodeId().equals(id)){
+//                    证明是有点赞记录的，只需要更改status的变量为1
+                    bean.setStatus(1);
+//                    获取到redis里面的数据，然后删除原有的数据，添加更新后的数据
+                    list.add(BeanMapUtils.beanToMap(bean));
+                    list.remove(map);
+                    flag = true;
+                }
+            }
+            if(!flag){
+                list.add(stringObjectMap);
+            }
+//            如果没有这个的记录就进行添加
+
+        }
+        redisUtil.set(RedisConstant.OCCUPATION_Collection, list);
+    }
+
 }
