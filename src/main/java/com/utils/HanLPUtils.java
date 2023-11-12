@@ -1,13 +1,15 @@
 package com.utils;
 
 import com.hankcs.hanlp.HanLP;
-import com.hankcs.hanlp.dictionary.CustomDictionary;
 import com.hankcs.hanlp.seg.common.Term;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -25,11 +27,17 @@ public class HanLPUtils {
 
     @PostConstruct
     public void initialize() {
-        HanLP.Config.CustomDictionaryPath = new String[]{customDictionaryPath};
-        HanLP.Config.CoreStopWordDictionaryPath = coreStopWordDictionaryPath;
+        try {
+            Resource customDictResource = new ClassPathResource(customDictionaryPath);
+            Resource stopWordDictResource = new ClassPathResource(coreStopWordDictionaryPath);
+            HanLP.Config.CustomDictionaryPath = new String[]{customDictResource.getURL().getPath()};
+            HanLP.Config.CoreStopWordDictionaryPath = stopWordDictResource.getURL().getPath();
 
-//        log.warn(customDictionaryPath);
-//        log.warn(coreStopWordDictionaryPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        HanLP.Config.CustomDictionaryPath = new String[]{customDictionaryPath};
+//            HanLP.Config.CoreStopWordDictionaryPath = coreStopWordDictionaryPath;
     }
 
     // 提取文本中指定数量的长度大于两个字的名词

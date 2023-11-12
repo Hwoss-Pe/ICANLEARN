@@ -74,7 +74,7 @@ public interface ForumMapper {
     void updateForumPostCollectNum(Integer postId, Integer num);
 
     //查询用户收藏的帖子表
-    @Select("select p.id,p.title,p.labels,p.publisher_id,pc.createTime from post_collections pc " +
+    @Select("select p.id,p.title,p.labels,p.publisher_id,p.create_time,p.like_num,p.collect_num from post_collections pc " +
             "join posts p on pc.post_id = p.id " +
             "where pc.user_id = #{userId} and p.visible_scope != -1")
     List<ForumPostPreview> selectCollectPostPreviewsByUserId(Integer userId);
@@ -107,12 +107,12 @@ public interface ForumMapper {
     @Select("select id from posts where labels like CONCAT('%', #{keyword}, '%') or title like CONCAT('%',#{keywords},'%')")
     List<Integer> selectIdsBySearchContent(String keyWords);
 
-    @Select("select p.id,p.title,p.labels,p.create_time from post_like pl " +
+    @Select("select p.id,p.title,p.labels,p.create_time,p.like_num,p.collect_num from post_like pl " +
             "join posts p on p.id = pl.post_id " +
             "where pl.user_id = #{userId} and p.visible_scope != -1")
     List<ForumPostPreview> selectLikePostPreviewsByUserId(Integer userId);
 
-    @Select("select id,title,labels,create_time from posts where publisher_id = #{userId}")
+    @Select("select id,title,labels,create_time,like_num,collect_num from posts where publisher_id = #{userId}")
     List<ForumPostPreview> selectPublishedPostPreViewsByUserId(Integer userId);
 
 //    //根据id列表查询帖子预览

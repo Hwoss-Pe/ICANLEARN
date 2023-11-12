@@ -74,6 +74,6 @@ debug:
     enabled: true
 
 hanlp:
-  customDictionaryPath: src/main/resources/hanlp/data/custom.txt
-  coreStopWordDictionaryPath: src/main/resources/hanlp/data/stop.txt
+  customDictionaryPath: hanlp/data/customDictionary.txt
+  coreStopWordDictionaryPath: hanlp/data/stop.txt
 

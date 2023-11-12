@@ -13,7 +13,7 @@
 
 
     <select id="selectForumPostPreViewsByIds" resultType="com.pojo.ForumPostPreview">
-        select id, title,labels,publisher_id,create_time from posts
+        select id, title,labels,publisher_id,create_time,like_num,collect_num from posts
         <where>
             id in
             <foreach collection="ids" separator="," open="(" close=")" item="id">
