@@ -25,6 +25,8 @@ public class HomepageController {
     @Autowired
     private CartoonService cartoonService;
 
+    @Autowired OccupationExplodeService occupationExplodeService;
+
     @Autowired
     private RoomService roomService;
 //    绘本主页展示绘本内容，实际上就是去调用绘本的接口
@@ -62,4 +64,13 @@ public class HomepageController {
                 Result.error(Code.WHITEBOARD_GET_ERR,"主页内容获取失败");
     }
 
+////    获取我的点赞
+//    public Result getLike(){
+//     occupationExplodeService.
+//
+//    }
+////    获取我的收藏
+//    public Result getCollection(){
+//
+//    }
 }

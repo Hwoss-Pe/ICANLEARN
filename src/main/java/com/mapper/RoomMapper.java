@@ -30,8 +30,9 @@ public interface RoomMapper {
     @Select("select * from room where InvitationCode = #{InvitationCode}")
     Room getRoomByInvitationCode(String InvitationCode);
 
+
     //    通过id去获取房间
-    @Select("select id, invitationCode, senderId, receiverId, detected, key_words, guess_words from room where id = #{id}")
+    @Select("select id, invitationCode, senderId, receiverId, detected, character_key_words,character_guess_words,job_key_words,job_guess_words from room where id = #{id}")
     Room getRoomById(Integer id);
 
     //   更新房间

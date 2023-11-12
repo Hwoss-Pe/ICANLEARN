@@ -47,5 +47,5 @@ public interface OccupationExplodeService {
 
     int saveProgress(PersonalProgress progress);
 
-    PersonalProgress getProgress(Integer userId);
+    List<PersonalProgress> getProgress(Integer userId);
 }

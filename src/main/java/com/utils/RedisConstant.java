@@ -73,8 +73,22 @@ public class RedisConstant {
     //用户id对应已预览的帖子的过期时间(5min)
     public static final Long POST_PREVIEWS_IDS_EXPIRE_TIME = 300000L;
 
-    //职业价值观进度缓存
-    public static final String OCCUPATION_VALUES= "userId:";
-    //职业价值观进度缓存(半小时)
-    public static final Long OCCUPATION_VALUES_EXPIRE_TIME = 1800000L;
+    //职业价值观进度缓存第一关
+    public static final String OCCUPATION_VALUES_1= "values_user_id:1";
+    //职业价值观进度缓存（拷贝）第一关
+    public static final String OCCUPATION_VALUES_COPY_1= "values_user_id_copy:1";
+    //监听的key
+    public static final String OCCUPATION_VALUES= "values_user_id_:";
+    //职业价值观进度缓存第二关
+    public static final String OCCUPATION_VALUES_2= "values_user_id:2";
+    //职业价值观进度缓存（拷贝）第二关
+    public static final String OCCUPATION_VALUES_COPY_2= "values_user_id_copy:2";
+    //职业价值观进度缓存(两个小时)
+    public static final Long OCCUPATION_VALUES_EXPIRE_TIME_COPY = 7200000L;
+    //职业价值观进度缓存(一小时)
+    public static final Long OCCUPATION_VALUES_EXPIRE_TIME = 3600000L;
+    //职业点赞
+    public static final String OCCUPATION_LIKE = "occupation_like";
+    //职业收藏
+    public static final String OCCUPATION_Collection = "occupation_collection";
 }

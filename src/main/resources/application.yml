@@ -59,7 +59,12 @@ spring:
     producer:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-#定义生产者和消费者的序列化和反序列化都是用String，设置最大轮询
+#定义生产者和消费者的序列化和反序列化都是用String，设置最大轮询]
+
+  elasticsearch:
+    uris: 8.134.211.237:9200
+#    uris: 127.0.0.1:9200
+
 
 #驼峰命名自动
 mybatis:

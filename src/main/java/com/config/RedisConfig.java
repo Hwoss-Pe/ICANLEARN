@@ -15,6 +15,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+
 @Configuration
 public class RedisConfig {
 
@@ -57,13 +58,14 @@ public class RedisConfig {
      * @param connectionFactory Redis 连接工厂
      * @return RedisMessageListenerContainer 实例
      */
+
+
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory) {
         // 创建 RedisMessageListenerContainer 实例
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         // 设置 Redis 连接工厂
         container.setConnectionFactory(connectionFactory);
-
 
         //返回RedisMessageListenerContainer 实例
         return container;

@@ -307,21 +307,19 @@ public class OccupationExplodeController {
     String token = req.getHeader("token");
     Integer userId = JwtUtils.getId(token);
     progress.setUserId(userId);
-    int i = occupationExplodeService.saveProgress(progress);
-        return i>0?Result.success(Code.VALUE_SAVE_OK,"保存成功"):
-                Result.error(Code.VALUE_SAVE_ERR,"保存失败");
-
+    occupationExplodeService.saveProgress(progress);
+        return Result.success(Code.VALUE_SAVE_OK,"保存成功");
     }
 //    点击后去查看有没有内容，有的话读值，没有就不返回
     @GetMapping("/progress")
     public Result getProgress(){
         String token = req.getHeader("token");
         Integer userId = JwtUtils.getId(token);
-        PersonalProgress progress = occupationExplodeService.getProgress(userId);
-        if (progress == null){
+        List<PersonalProgress> progresses = occupationExplodeService.getProgress(userId);
+        if (progresses == null){
            return Result.success(Code.VALUE_GET_OK, null);
         }else {
-            return Result.success(Code.VALUE_GET_OK,progress);
+            return Result.success(Code.VALUE_GET_OK,progresses);
         }
     }
 
@@ -346,6 +344,7 @@ public class OccupationExplodeController {
 //    @GetMapping("/3")
 //    public  void addAllL() throws IOException {
 //        HttpHost host = HttpHost.create("http://8.134.211.237:9200");
+////        HttpHost host = HttpHost.create("http://localhost:9200");
 //        RestClientBuilder builder = RestClient.builder(host);
 //        client = new RestHighLevelClient(builder);
 //        List<OccupationExplode> occupations = occupationExplodeService.getOccupations();

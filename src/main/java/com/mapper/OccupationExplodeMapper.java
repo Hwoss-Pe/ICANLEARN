@@ -64,8 +64,8 @@ public interface OccupationExplodeMapper {
 
 //   获取用户的保存进度,这里返回的默认最大关卡，也就是目前的最大记录，
 
-    @Select("SELECT * FROM values_progress where user_id = #{userId} ORDER BY progress DESC LIMIT 1")
-    PersonalProgress getPersonalProgress(Integer userId);
+    @Select("SELECT * FROM values_progress where user_id = #{userId} ORDER BY progress DESC")
+    List<PersonalProgress> getPersonalProgress(Integer userId);
 
 //    存入进度
     @Insert("insert into values_progress (user_id,progress,explode_values) VALUES (#{userId}, #{progress}, #{explodeValues})")
@@ -77,4 +77,30 @@ public interface OccupationExplodeMapper {
 
     @Update("update values_progress set progress = #{progress},explode_values=#{explodeValues} where user_id = #{userId}")
     int updateProgress(PersonalProgress progress);
+
+//    插入点赞表
+    @Insert("insert into occupation_like (user_id,explode_id,create_time,status) values(#{userId},#{explodeId},#{createTime},#{status})")
+    int insertLike(OccupationLike occupationLike);
+
+    @Select("select * from occupation_like where user_id = #{userId} and explode_id = #{explodeId}")
+    OccupationLike getLike(Integer userId, Integer explodeId);
+
+
+    @Select("update occupation_like  set status = #{status} where user_id = #{userId} and explode_id = #{explodeId}")
+    OccupationLike updateLike(Integer userId, Integer explodeId,Integer status);
+    //    插入收藏表
+    @Insert("insert into occupation_collection  (user_id,explode_id,create_time,status) values(#{userId},#{explodeId},#{createTime},#{status})")
+    int insertCollection(OccupationCollection occupationCollection);
+
+
+    @Select("select * from occupation_collection where user_id = #{userId} and explode_id = #{explodeId}")
+    OccupationCollection getCollection(Integer userId, Integer explodeId);
+
+
+    @Select("update occupation_collection  set status = #{status} where user_id = #{userId} and explode_id = #{explodeId}")
+    OccupationCollection updateCollection(Integer userId, Integer explodeId,Integer status);
+
+////    获取个人点赞
+//    @Select("SELECT * from occupation_explode where ")
+//    OccupationExplode getMyLike();
 }
