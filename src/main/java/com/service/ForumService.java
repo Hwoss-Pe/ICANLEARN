@@ -1,8 +1,6 @@
 package com.service;
 
-import com.pojo.ForumPost;
-import com.pojo.ForumPostComment;
-import com.pojo.ForumPostPreview;
+import com.pojo.*;
 
 import java.util.List;
 
@@ -46,4 +44,19 @@ public interface ForumService {
 
     //获取用户发布过的帖子
     List<ForumPostPreview> getPublishedPosts(Integer userId);
+
+    //获取职业探索人物帖子预览
+    List<OccupationPersonPreview> getOccupationPersonPreviews(Integer num);
+
+    //获取职业探索帖子人物详细信息
+    OccupationPerson getOccupationPersonDetail(Integer id);
+
+    //点赞职业探索帖子人物
+    Integer likeOccupationPerson(Integer userId, Integer id);
+
+    //收藏职业探索帖子人物
+    Integer collectOccupationPerson(Integer userId, Integer id);
+
+    //获取id对应帖子的评论
+    List<ForumPostComment> getCommentsById(String id);
 }

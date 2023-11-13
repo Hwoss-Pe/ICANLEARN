@@ -343,6 +343,70 @@ public class ForumServiceImpl implements ForumService {
         return forumMapper.selectPublishedPostPreViewsByUserId(userId);
     }
 
+    //获取职业探索帖子预览
+    @Override
+    public List<OccupationPersonPreview> getOccupationPersonPreviews(Integer num) {
+        return forumMapper.selectNumOccupationPersonPreviews(num);
+    }
+
+    //获取职业探索帖子人物详细信息
+    @Override
+    public OccupationPerson getOccupationPersonDetail(Integer id) {
+        return forumMapper.selectOccupationPerson(id);
+    }
+
+
+    //点赞职业探索帖子人物
+    @Override
+    @Transactional
+    public Integer likeOccupationPerson(Integer userId,Integer id) {
+        try {
+            Integer likeId = forumMapper.selectOccupationPersonLikeByUserId(userId,id);
+            if (likeId == null){
+                //如果不存在点赞信息则未点赞
+                forumMapper.insertOccupationPersonLike(userId,id);
+                forumMapper.updateOccupationPersonLike(1,id);
+                return 1;
+            }else {
+                forumMapper.deletePostLike(userId,id);
+                forumMapper.updateOccupationPersonLike(-1,id);
+                return 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    //收藏职业探索帖子人物
+    @Override
+    @Transactional
+    public Integer collectOccupationPerson(Integer userId,Integer id) {
+        try {
+            Integer collect = forumMapper.selectOccupationPersonCollectById(userId,id);
+            if (collect == null){
+                //如果不存在收藏信息则未收藏
+                forumMapper.insertOccupationPersonCollect(userId,id);
+                forumMapper.updateOccupationPersonCollect(1,id);
+                return 1;
+            }else {
+                forumMapper.deletePostCollect(userId,id);
+                forumMapper.updateOccupationPersonCollect(-1,id);
+                return 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    //获取职业探索人物帖子的评论
+    @Override
+    public List<ForumPostComment> getCommentsById(String id) {
+        List<ForumPostComment> commentList = forumMapper.selectForumPostCommentsByPostId(id);
+        return sortOutComments(commentList);
+    }
+
     //获取postId对应的帖子详细信息
     @Override
     public ForumPost getPostDetails(Integer userId, String postId) {

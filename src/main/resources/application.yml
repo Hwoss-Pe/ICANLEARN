@@ -77,6 +77,9 @@ debug:
     enabled: true
 
 hanlp:
-  customDictionaryPath: hanlp/data/customDictionary.txt
-  coreStopWordDictionaryPath: hanlp/data/stop.txt
-
+  root: /usr/local/hanlp/
+  CoreDictionaryPath: data/dictionary/CoreNatureDictionary.txt
+  BiGramDictionaryPath: data/dictionary/CoreNatureDictionary.ngram.txt
+  CoreStopWordDictionaryPath: data/dictionary/stopwords.txt
+  CustomDictionaryPath1: data/dictionary/custom/custom.txt
+  CustomDictionaryPath2: data/dictionary/custom/CustomDictionary.txt

@@ -107,13 +107,50 @@ public interface ForumMapper {
     @Select("select id from posts where labels like CONCAT('%', #{keyword}, '%') or title like CONCAT('%',#{keywords},'%')")
     List<Integer> selectIdsBySearchContent(String keyWords);
 
+
+    //获取帖子预览
     @Select("select p.id,p.title,p.labels,p.create_time,p.like_num,p.collect_num from post_like pl " +
             "join posts p on p.id = pl.post_id " +
             "where pl.user_id = #{userId} and p.visible_scope != -1")
     List<ForumPostPreview> selectLikePostPreviewsByUserId(Integer userId);
 
+    //获取用户发布的帖子
     @Select("select id,title,labels,create_time,like_num,collect_num from posts where publisher_id = #{userId}")
     List<ForumPostPreview> selectPublishedPostPreViewsByUserId(Integer userId);
+
+    //获取职业探索帖子预览
+    @Select("select id,card,like_num,collect_num from occupation_person order by RAND() LIMIT #{num}")
+    List<OccupationPersonPreview> selectNumOccupationPersonPreviews(Integer num);
+
+    //获取职业探索帖子人物详细信息
+    @Select("select id, card, skills, background, responsibility, quality, salary, story, challenge, evaluate, advice, prospect, like_num, collect_num" +
+            " from occupation_person where id = #{id}")
+    OccupationPerson selectOccupationPerson(Integer id);
+
+    //查询点赞表
+    @Select("select id from post_like where user_id=#{userId} and post_id = #{id}")
+    Integer selectOccupationPersonLikeByUserId(Integer userId, Integer id);
+
+    //加入点赞表
+    @Insert("insert into post_like(user_id, post_id) values (#{userId},#{id})")
+    void insertOccupationPersonLike(Integer userId, Integer id);
+
+    //查询收藏表
+    @Select("select id from post_collections where user_id = #{userId} and post_id = #{id}")
+    Integer selectOccupationPersonCollectById(Integer userId, Integer id);
+
+    //加入收藏表
+    @Insert("insert into post_collections(user_id, post_id) values (#{userId},#{id})")
+    void insertOccupationPersonCollect(Integer userId, Integer id);
+
+    //点赞
+    @Update("update occupation_person set like_num = like_num + #{num} where id = #{id}")
+    void updateOccupationPersonLike(Integer num,Integer id);
+
+    //收藏
+    @Update("update occupation_person set collect_num = collect_num + #{num} where id = #{id}")
+    void updateOccupationPersonCollect(Integer num,Integer id);
+
 
 //    //根据id列表查询帖子预览
 //    List<ForumPostPreview> selectPostPreviewsByIds(List<Integer> ids, Integer userId);
