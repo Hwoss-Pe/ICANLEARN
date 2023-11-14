@@ -19,4 +19,5 @@ public class ToDo {
     private String finish;
     private String des;
     private Integer stage;
+    private Integer count;
 }

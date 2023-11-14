@@ -189,7 +189,12 @@ public class Code {
     //画板主页
     public static final Integer WHITEBOARD_GET_OK = 20611;
     public static final Integer WHITEBOARD_GET_ERR = 10610;
-
+    //职业主页点赞
+    public static final Integer OCCUPATION_LIKE_OK =21101;
+    public static final Integer OCCUPATION_LIKE_ERR =11100;
+    //职业主页收藏
+    public static final Integer OCCUPATION_COLLECTION_OK =21111;
+    public static final Integer OCCUPATION_COLLECTION_ERR =11110;
     //======================论坛=======================
 
     //获取推荐关键词

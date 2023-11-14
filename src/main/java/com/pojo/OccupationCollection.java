@@ -16,4 +16,5 @@ public class OccupationCollection {
     private Integer explodeId;
     private Date createTime;
     private Integer status;
+    private OccupationExplode occupationExplode;
 }

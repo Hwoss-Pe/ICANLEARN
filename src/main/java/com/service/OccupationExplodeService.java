@@ -2,6 +2,7 @@ package com.service;
 
 
 import com.pojo.*;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
@@ -48,4 +49,10 @@ public interface OccupationExplodeService {
     int saveProgress(PersonalProgress progress);
 
     List<PersonalProgress> getProgress(Integer userId);
+
+    List<OccupationLike> getMyLike(Integer userId);
+
+    List<OccupationCollection> getMyCollection(Integer userId);
+
+
 }
