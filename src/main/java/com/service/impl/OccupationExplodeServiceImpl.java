@@ -264,13 +264,17 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
         occupationExplodeMapper.updatePlan(plan);
 //        1表示添加成功，0添加失败，2表示直线，3表示全部
         if(bingoAll){
+            occupationExplodeMapper.addCount(userId, stage);
             return 3;
         }
         if(bingo.size()>0){
+//            如果存在有直线，就去执行+1逻辑
+            occupationExplodeMapper.addCount(userId, stage);
             return bingo;
         }
         return 1;
     }
+
 
 
     @Override
@@ -374,7 +378,6 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
             }
         }
         coordinates.clear();
-        // 如果以上都没有返回 true，说明没有连成 N 子棋
         return coordinates;
     }
 
@@ -455,12 +458,7 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
 
     public void handleLike(Integer status,Integer userId, Integer id){
         OccupationLike occupationLike = new OccupationLike();
-        occupationLike.setExplodeId(id);
-        occupationLike.setCreateTime(new Date());
-        occupationLike.setUserId(userId);
-        occupationLike.setStatus(status);
-//        先从库查询这个人，采用更新数据库字段的方式
-        Map<String, Object> stringObjectMap = BeanMapUtils.beanToMap(occupationLike);
+        Map<String, Object> stringObjectMap = getStringObjectMap(status, userId, id, occupationLike);
         List<Map<String, Object>> list = new ArrayList<>();
         if(redisUtil.hasKey(RedisConstant.OCCUPATION_LIKE)){
             list = (List<Map<String, Object>>)redisUtil.get(RedisConstant.OCCUPATION_LIKE);
@@ -483,6 +481,16 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
 
         }
         redisUtil.set(RedisConstant.OCCUPATION_LIKE, list);
+    }
+
+    private Map<String, Object> getStringObjectMap(Integer status, Integer userId, Integer id, OccupationLike occupationLike) {
+        occupationLike.setExplodeId(id);
+        occupationLike.setCreateTime(new Date());
+        occupationLike.setUserId(userId);
+        occupationLike.setStatus(status);
+//        先从库查询这个人，采用更新数据库字段的方式
+        Map<String, Object> stringObjectMap = BeanMapUtils.beanToMap(occupationLike);
+        return stringObjectMap;
     }
 
     public void handleCollection(Integer status,Integer userId, Integer id){
@@ -516,4 +524,13 @@ public class OccupationExplodeServiceImpl implements OccupationExplodeService {
         redisUtil.set(RedisConstant.OCCUPATION_Collection, list);
     }
 
+    @Override
+    public List<OccupationLike> getMyLike(Integer userId) {
+        return occupationExplodeMapper.getMyLike(userId);
+    }
+
+    @Override
+    public List<OccupationCollection> getMyCollection(Integer userId) {
+        return occupationExplodeMapper.getMyCollection(userId);
+    }
 }

@@ -30,7 +30,7 @@ public class EmailUtils {
             send.setSubject("邮箱认证");
             //具体的发送消息
 
-            send.setMsg("欢迎使用邮箱验证本系统！您的验证码是："+code);
+            send.setMsg("欢迎使用FindMe！您的验证码是："+code);
             send.setCharset("UTF-8");
             send.send();
 

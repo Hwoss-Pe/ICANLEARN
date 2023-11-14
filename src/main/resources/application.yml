@@ -1,18 +1,18 @@
-spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/resource
-    username: root
-    password:
-
-##
 #spring:
-#  #数据库连接信息
 #  datasource:
 #    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:3306/test_db
-#    username: Test_db
-#    password: yk3P8PN6KzAHmbay
+#    url: jdbc:mysql://localhost:3306/resource
+#    username: root
+#    password:
+
+##
+spring:
+  #数据库连接信息
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test_db
+    username: Test_db
+    password: yk3P8PN6KzAHmbay
 #  redis:
 #    host: 127.0.0.1
 #    port: 6379
@@ -24,7 +24,7 @@ spring:
 
 ##8.134.176.185
   redis:
-    host: 8.134.176.185
+    host: 127.0.0.1
     port: 6379
     password: redis
     lettuce:
@@ -68,8 +68,12 @@ spring:
     uris: 8.134.211.237:9200
 #    uris: 127.0.0.1:9200
 hanlp:
-  customDictionaryPath: hanlp/data/customDictionary.txt
-  coreStopWordDictionaryPath: hanlp/data/stop.txt
+  root: /usr/local/hanlp/
+  CoreDictionaryPath: data/dictionary/CoreNatureDictionary.txt
+  BiGramDictionaryPath: data/dictionary/CoreNatureDictionary.ngram.txt
+  CoreStopWordDictionaryPath: data/dictionary/stopwords.txt
+  CustomDictionaryPath1: data/dictionary/custom/custom.txt
+  CustomDictionaryPath2: data/dictionary/custom/CustomDictionary.txt
 
 #驼峰命名自动
 mybatis:

@@ -1,9 +1,12 @@
 package com.utils;
 
 import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.dictionary.CustomDictionary;
+import com.hankcs.hanlp.dictionary.stopword.CoreStopWordDictionary;
 import com.hankcs.hanlp.seg.common.Term;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -19,23 +22,35 @@ import java.util.*;
 @Component
 public class HanLPUtils {
 
-    @Value("${hanlp.customDictionaryPath}")
-    private String customDictionaryPath;
+    @Value("${hanlp.root}")
+    private String root;
 
-    @Value("${hanlp.coreStopWordDictionaryPath}")
+    @Value("${hanlp.CoreDictionaryPath}")
+    private String coreDictionaryPath;
+
+    @Value("${hanlp.CustomDictionaryPath1}")
+    private String customDictionaryPath1;
+
+    @Value("${hanlp.CustomDictionaryPath2}")
+    private String customDictionaryPath2;
+
+    @Value("${hanlp.BiGramDictionaryPath}")
+    private String biGramDictionaryPath;
+
+    @Value("${hanlp.CoreStopWordDictionaryPath}")
     private String coreStopWordDictionaryPath;
 
     @PostConstruct
     public void initialize() {
-        try {
-            Resource customDictResource = new ClassPathResource(customDictionaryPath);
-            Resource stopWordDictResource = new ClassPathResource(coreStopWordDictionaryPath);
-            HanLP.Config.CustomDictionaryPath = new String[]{customDictResource.getURL().getPath()};
-            HanLP.Config.CoreStopWordDictionaryPath = stopWordDictResource.getFile().getPath();
+        String[] customDictionaryPaths = {root + customDictionaryPath1,root + customDictionaryPath2};
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        HanLP.Config.CoreDictionaryPath = root + coreDictionaryPath;
+        HanLP.Config.BiGramDictionaryPath = root + biGramDictionaryPath;
+        HanLP.Config.CustomDictionaryPath = customDictionaryPaths;
+        HanLP.Config.CoreStopWordDictionaryPath = root + coreStopWordDictionaryPath;
+
+
+
 //        HanLP.Config.CustomDictionaryPath = new String[]{customDictionaryPath};
 //            HanLP.Config.CoreStopWordDictionaryPath = coreStopWordDictionaryPath;
     }
@@ -44,10 +59,13 @@ public class HanLPUtils {
     public Set<String> extractNouns(String text, int count) {
         // 对文本进行分词和词性标注
         List<Term> termList = HanLP.segment(text);
+
+        List<Term> apply = CoreStopWordDictionary.apply(termList);
+
         List<String> nouns = new ArrayList<>();
 
         // 遍历分词结果，筛选出名词
-        for (Term term : termList) {
+        for (Term term : apply) {
             // 判断词性是否为名词（n开头为名词），并且长度大于2
             if (term.nature.startsWith("n") && term.word.length() > 2) {
                 nouns.add(term.word); // 将满足条件的名词加入到列表中
@@ -65,10 +83,13 @@ public class HanLPUtils {
     public Set<String> extractHighFrequencyNouns(String text, int count) {
         // 对文本进行分词和词性标注
         List<Term> termList = HanLP.segment(text);
+
+        List<Term> apply = CoreStopWordDictionary.apply(termList);
+
         Map<String, Integer> wordFreqMap = new HashMap<>();
 
         // 计算名词词频
-        for (Term term : termList) {
+        for (Term term : apply) {
             if (term.nature.startsWith("n") && term.word.length() > 2) {
                 wordFreqMap.put(term.word, wordFreqMap.getOrDefault(term.word, 0) + 1);
             }

@@ -6,14 +6,33 @@
       "description": "Description for debug.mode.enabled."
     },
     {
-      "name": "hanlp.customDictionaryPath",
+      "name": "hanlp.root",
       "type": "java.lang.String",
-      "description": "Description for hanlp.customDictionaryPath."
+      "description": "Description for hanlp.root."
     },
     {
-      "name": "hanlp.coreStopWordDictionaryPath",
+      "name": "hanlp.CoreDictionaryPath",
       "type": "java.lang.String",
-      "description": "Description for hanlp.coreStopWordDictionaryPath."
+      "description": "Description for hanlp.CoreDictionaryPath."
+    },
+    {
+      "name": "hanlp.BiGramDictionaryPath",
+      "type": "java.lang.String",
+      "description": "Description for hanlp.BiGramDictionaryPath."
+    },
+    {
+      "name": "hanlp.CoreStopWordDictionaryPath",
+      "type": "java.lang.String",
+      "description": "Description for hanlp.CoreStopWordDictionaryPath."
+    },
+    {
+      "name": "hanlp.CustomDictionaryPath1",
+      "type": "java.lang.String",
+      "description": "Description for hanlp.CustomDictionaryPath1."
+    },
+    {
+      "name": "hanlp.CustomDictionaryPath2",
+      "type": "java.lang.String",
+      "description": "Description for hanlp.CustomDictionaryPath2."
     }
-  ]
-}
+  ] }

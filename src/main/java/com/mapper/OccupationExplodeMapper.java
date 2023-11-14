@@ -2,10 +2,7 @@ package com.mapper;
 
 
 import com.pojo.*;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -100,7 +97,18 @@ public interface OccupationExplodeMapper {
     @Select("update occupation_collection  set status = #{status} where user_id = #{userId} and explode_id = #{explodeId}")
     OccupationCollection updateCollection(Integer userId, Integer explodeId,Integer status);
 
-////    获取个人点赞
-//    @Select("SELECT * from occupation_explode where ")
-//    OccupationExplode getMyLike();
+//    获取个人点赞
+//@Select("SELECT * from occupation_like  join occupation_explode on\n" +
+//        "    occupation_like.explode_id = occupation_explode.id where user_id = #{userId} and status = 1")
+    List<OccupationLike> getMyLike(@Param("userId")Integer userId);
+
+    //    获取个人收藏
+//    @Select("SELECT * from occupation_collection  join occupation_explode on\n" +
+//            "    occupation_collection.explode_id = occupation_explode.id where user_id = #{userId} and status = 1")
+
+    List<OccupationCollection> getMyCollection(@Param("userId")Integer userId);
+
+//    增加直线的次数
+    @Update("update to_do set count = count + 1  where user_id = #{userId} and stage = #{stage}")
+    int addCount(Integer userId,Integer stage);
 }

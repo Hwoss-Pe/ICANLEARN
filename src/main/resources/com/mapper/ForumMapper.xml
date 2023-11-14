@@ -24,15 +24,4 @@
 
     </select>
 
-
-    <!--    <select id="selectPostPreviewsByPostIds" resultType="com.pojo.ForumPostPreview">-->
-    <!--        select id,title,publisher_id,labels from posts-->
-    <!--        <where>-->
-    <!--            id in-->
-    <!--            <foreach collection="list" open="(" close=")" separator="," item="collect">-->
-    <!--                #{collect.postId}-->
-    <!--            </foreach>-->
-    <!--        </where>-->
-    <!--    </select>-->
-
 </mapper>

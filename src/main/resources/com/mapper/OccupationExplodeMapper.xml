@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mapper.OccupationExplodeMapper">
+<select id="getMyLike"  resultMap="occupationResultMap" parameterType="java.lang.Integer" >
+        SELECT * from occupation_like  join occupation_explode on
+              occupation_like.explode_id = occupation_explode.id where user_id = #{userId} and status = 1
+    </select>
+
+<select id="getMyCollection" resultMap="occupationResultMap" parameterType="java.lang.Integer">
+    SELECT * from occupation_collection  join occupation_explode on
+        occupation_collection.explode_id = occupation_explode.id where user_id = #{userId} and status = 1
+       </select>
+
+
+    <resultMap id="occupationResultMap" type="com.pojo.OccupationLike">
+    <id property="id" column="id" />
+    <result property="userId" column="user_id" />
+    <result property="explodeId" column="explode_id" />
+    <result property="createTime" column="create_time" />
+    <result property="status" column="status" />
+
+    <association property="occupationExplode" javaType="com.pojo.OccupationExplode">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="info" column="info" />
+        <result property="professionalEthics" column="professional_ethics" />
+        <result property="duties" column="duties" />
+        <result property="environment" column="environment" />
+        <result property="knowledgeBg" column="knowledge_bg" />
+        <result property="course" column="course" />
+        <result property="skills" column="kills" />
+        <result property="requirements" column="requirements" />
+        <result property="prospect" column="prospect" />
+        <result property="salary" column="salary" />
+        <result property="commonTools" column="common_tools" />
+        <result property="job" column="job" />
+        <result property="likes" column="likes" />
+        <result property="collection" column="collection" />
+    </association>
+</resultMap>
+</mapper>

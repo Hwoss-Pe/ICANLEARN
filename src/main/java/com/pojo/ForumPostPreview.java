@@ -19,6 +19,8 @@ public class ForumPostPreview implements Forum{
     private List<String> labelsList;
     private Integer publisherId;
     private Timestamp createTime;
+    private Integer likeNum;
+    private Integer collectNum;
 
     public void setLabels(String labels) {
         this.labels = labels;
