@@ -8,5 +8,6 @@ public class InsertPostCommentHandler implements MessageHandler<ForumPostComment
     @Override
     public void handle(ForumPostComment data, ForumMapper forumMapper) {
         forumMapper.insertForumPostComment(data);
+        forumMapper.insertForumMessage(data,"comment");
     }
 }

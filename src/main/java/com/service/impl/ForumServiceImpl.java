@@ -239,6 +239,7 @@ public class ForumServiceImpl implements ForumService {
                     status = 0;
                 }
             }
+            log.info("collectPost状态码：{}",status);
             if (status.equals(0)) {//用户已收藏，要取消收藏
                 if (redisUtil.hasKey(postKey)) {
                     redisUtil.hdecr(postKey, "collectNum", 1);
@@ -256,7 +257,7 @@ public class ForumServiceImpl implements ForumService {
                     redisUtil.hincr(postKey, "collectNum", 1);
                 }
                 //存入redis
-                redisUtil.set(collectKey, userId, RedisConstant.FORUM_POST_LIKE_COLLECT_EXPIRE_TIME);
+                redisUtil.sSet(collectKey, userId, RedisConstant.FORUM_POST_LIKE_COLLECT_EXPIRE_TIME);
                 //处理数据
                 ForumPostCollect collect = new ForumPostCollect();
                 collect.setPostId(Integer.parseInt(postId));
@@ -304,8 +305,8 @@ public class ForumServiceImpl implements ForumService {
     @Override
     public boolean deletePostComment(Integer userId, String commentId) {
         //判断是否为操作者的评论
-        Integer realUserId = forumMapper.selectCommentUserIdByCommentId(commentId);
-        if (!userId.equals(realUserId)) {
+        ForumPostComment comment = forumMapper.selectCommentUserIdByCommentId(commentId);
+        if (!userId.equals(comment.getUserId())) {
             return false;
         }
         try {
@@ -314,11 +315,8 @@ public class ForumServiceImpl implements ForumService {
             if (redisUtil.hasKey(RedisConstant.COMMENT_AUTO_INCREMENT_ID) && commentIdi.equals(forumMapper.selectIncrementId(ForumMapper.POST_COMMENTS))) {
                 redisUtil.decr(RedisConstant.COMMENT_AUTO_INCREMENT_ID, 1);
             }
-            //处理数据
-            ForumPostComment forumPostComment = new ForumPostComment();
-            forumPostComment.setId(commentIdi);
             //发送到消息队列
-            kafkaProducer.sendMessage(FORUM_TOPIC, DELETE_POST_COMMENT, forumPostComment);
+            kafkaProducer.sendMessage(FORUM_TOPIC, DELETE_POST_COMMENT, comment);
         } catch (NumberFormatException e) {
             e.printStackTrace();
             return false;
@@ -405,6 +403,19 @@ public class ForumServiceImpl implements ForumService {
     public List<ForumPostComment> getCommentsById(String id) {
         List<ForumPostComment> commentList = forumMapper.selectForumPostCommentsByPostId(id);
         return sortOutComments(commentList);
+    }
+
+    @Transactional
+    @Override
+    public List<ForumPostMessage> getMessage(Integer userId) {
+        List<ForumPostMessage> forumPostMessages = forumMapper.selectForumPostMessageByPublisherId(userId);
+        forumMapper.deleteForumPostMessageById(userId);
+        return forumPostMessages;
+    }
+
+    @Override
+    public Integer getMessageNum(Integer userId) {
+        return forumMapper.selectMessageNumByUserId(userId);
     }
 
     //获取postId对应的帖子详细信息

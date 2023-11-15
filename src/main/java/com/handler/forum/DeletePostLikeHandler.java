@@ -15,6 +15,7 @@ public class DeletePostLikeHandler implements MessageHandler<ForumPostLike> {
         Integer postId = data.getPostId();
         Integer userId = data.getUserId();
         forumMapper.deletePostLike(userId, postId);
+        forumMapper.deleteMessageByPostIdAndUserId(postId,userId);
         forumMapper.updateForumPostLikeNum(postId,-1);
     }
 }

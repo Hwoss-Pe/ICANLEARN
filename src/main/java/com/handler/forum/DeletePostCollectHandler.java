@@ -16,6 +16,7 @@ public class DeletePostCollectHandler implements MessageHandler<ForumPostCollect
         Integer postId = data.getPostId();
         Integer userId = data.getUserId();
         forumMapper.deletePostCollect(userId, postId);
+        forumMapper.deleteMessageByPostIdAndUserId(postId,userId);
         forumMapper.updateForumPostCollectNum(postId,-1);
     }
 }

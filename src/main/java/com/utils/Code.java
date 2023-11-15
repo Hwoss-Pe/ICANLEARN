@@ -274,7 +274,13 @@ public class Code {
     public static final Integer GET_OCCUPATION_PERSON_COMMENT_OK = 20871;
     public static final Integer GET_OCCUPATION_PERSON_COMMENT_ERR = 10870;
 
+    //获取消息
+    public static final Integer GET_FORUM_POST_MESSAGE_OK = 20881;
+    public static final Integer GET_FORUM_POST_MESSAGE_ERR = 10880;
 
+    //获取消息数
+    public static final Integer GET_FORUM_MESSAGE_NUM_OK = 20891;
+    public static final Integer GET_FORUM_MESSAGE_NUM_ERR = 10890;
 
     //=================== 5*5计划========================
 

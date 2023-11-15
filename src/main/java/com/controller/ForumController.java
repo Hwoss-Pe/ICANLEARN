@@ -284,11 +284,11 @@ public class ForumController {
         if (type.equals("like")) {
             codeOK = Code.LIKE_OCCUPATION_PERSON_OK;
             codeERR = Code.LIKE_OCCUPATION_PERSON_ERR;
-            status = forumService.likeOccupationPerson(userId,id);
+            status = forumService.likeOccupationPerson(userId, id);
         } else if (type.equals("collect")) {
             codeOK = Code.COLLECT_OCCUPATION_PERSON_OK;
             codeERR = Code.COLLECT_OCCUPATION_PERSON_ERR;
-            status = forumService.collectOccupationPerson(userId,id);
+            status = forumService.collectOccupationPerson(userId, id);
         } else {
             return Result.error("类型错误！请选择like&collect！");
         }
@@ -305,14 +305,45 @@ public class ForumController {
 
     //获取帖子的评论
     @GetMapping("/occupation_person/comment/{id}")
-    public Result getComments(@PathVariable String id){
+    public Result getComments(@PathVariable String id) {
         try {
             List<ForumPostComment> forumPostComments = forumService.getCommentsById(id);
-            return Result.success(Code.GET_OCCUPATION_PERSON_COMMENT_OK,forumPostComments);
+            return Result.success(Code.GET_OCCUPATION_PERSON_COMMENT_OK, forumPostComments);
         } catch (Exception e) {
             e.printStackTrace();
-            return Result.error(Code.GET_OCCUPATION_PERSON_COMMENT_ERR,"获取评论失败");
+            return Result.error(Code.GET_OCCUPATION_PERSON_COMMENT_ERR, "获取评论失败");
         }
     }
+
+    //获取消息
+    @GetMapping("/message")
+    public Result getMessage() {
+        try {
+            String jwt = req.getHeader("token");
+            Integer userId = JwtUtils.getId(jwt);
+
+            List<ForumPostMessage> message = forumService.getMessage(userId);
+
+            return Result.success(Code.GET_FORUM_POST_MESSAGE_OK, message);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(Code.GET_FORUM_POST_MESSAGE_ERR, "获取消息出错");
+        }
+    }
+
+    //获取未读消息数
+    @GetMapping("/message_num")
+    public Result getMessageNum() {
+        try {
+            String jwt = req.getHeader("token");
+            Integer userId = JwtUtils.getId(jwt);
+            Integer num = forumService.getMessageNum(userId);
+            return Result.success(Code.GET_FORUM_MESSAGE_NUM_OK, num);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(Code.GET_FORUM_MESSAGE_NUM_ERR, "获取消息数失败");
+        }
+    }
+
 
 }

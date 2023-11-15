@@ -9,5 +9,6 @@ public class DeletePostCommentHandler implements MessageHandler<ForumPostComment
     public void handle(ForumPostComment data, ForumMapper forumMapper) {
         Integer id = data.getId();
         forumMapper.deletePostCommentByCommentId(id);
+        forumMapper.deleteMessageByPostIdAndUserId(data.getPostId(),data.getUserId());
     }
 }

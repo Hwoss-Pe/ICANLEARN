@@ -7,8 +7,11 @@ import com.redis.RedisExpiredKeyHandler;
 import com.utils.RedisConstant;
 import com.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +48,10 @@ public class ForumPostLikeExpiredKeyHandler implements RedisExpiredKeyHandler {
                 List<ForumPostLike> list = extractForumPostLikeToList(map);
                 //批量添加数据到点赞表中
                 forumMapper.insertList2ForumPostLike(list);
+                //添加到消息表中
+                for (ForumPostLike like : list) {
+                    forumMapper.insertForumMessage(like,"like");
+                }
                 log.info("批量添加数据到点赞表中:{}", list);
             }
             redisUtil.del(backupKey);

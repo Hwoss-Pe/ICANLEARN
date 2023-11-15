@@ -59,4 +59,10 @@ public interface ForumService {
 
     //获取id对应帖子的评论
     List<ForumPostComment> getCommentsById(String id);
+
+    //获取信息
+    List<ForumPostMessage> getMessage(Integer userId);
+
+    //获取未读信息数
+    Integer getMessageNum(Integer userId);
 }
