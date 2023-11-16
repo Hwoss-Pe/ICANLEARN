@@ -19,8 +19,10 @@ public class InsertPostCollectHandler implements MessageHandler<ForumPostCollect
         //获取发布者id
         Integer publisherId = forumMapper.selectPublisherIdByPostId(postId);
         data.setPublisherId(publisherId);
+        log.info("收藏帖子的发布者id:{}",publisherId);
         //存入数据库
         forumMapper.insertForumPostCollect(data);
+        forumMapper.insertForumMessage(data,"collect");
         //更新post的收藏数
         forumMapper.updateForumPostCollectNum(postId,1);
         log.info("数据存入收藏表:{}", data);

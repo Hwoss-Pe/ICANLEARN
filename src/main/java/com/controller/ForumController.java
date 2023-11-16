@@ -123,6 +123,21 @@ public class ForumController {
         return Result.error(Code.LIKE_POST_ERR, "未知错误...");
     }
 
+    //获取点赞列表
+    @GetMapping("/likes")
+    public Result getLikeList() {
+        try {
+            String jwt = req.getHeader("token");
+            Integer userId = JwtUtils.getId(jwt);
+            //获取点赞帖子的预览
+            List<ForumPostPreview> likeList = forumService.getLikeList(userId);
+            return Result.success(Code.GET_LIKES_OK, likeList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(Code.GET_LIKES_ERR, "操作失败");
+        }
+    }
+
     //收藏/取消收藏帖子
     @GetMapping("/collect/{postId}")
     public Result collect(@PathVariable String postId) {
@@ -155,6 +170,21 @@ public class ForumController {
             return Result.error(Code.GET_COLLECTIONS_ERR, "操作失败");
         }
 
+    }
+
+    //获取用户发布的帖子
+    @GetMapping("/published")
+    public Result getPublishedPostPreViews() {
+        try {
+            String jwt = req.getHeader("token");
+            Integer userId = JwtUtils.getId(jwt);
+            //获取发布过的帖子的预览
+            List<ForumPostPreview> publishedPosts = forumService.getPublishedPosts(userId);
+            return Result.success(Code.GET_MY_POSTS_OK, publishedPosts);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(Code.GET_MY_POSTS_ERR, "操作失败");
+        }
     }
 
     //评论帖子
@@ -209,107 +239,111 @@ public class ForumController {
 
     }
 
-    //获取点赞列表
-    @GetMapping("/likes")
-    public Result getLikeList() {
+    //获取职业探索人物帖子预览
+    @GetMapping("/occupation_person/preview/{num}")
+    public Result getOccupationPersonPreviews(@PathVariable Integer num) {
+        try {
+            List<OccupationPersonPreview> previews = forumService.getOccupationPersonPreviews(num);
+            if (previews == null) {
+                throw new NullPointerException("forumService.getOccupationPersonPreviews(num)==null");
+            }
+            return Result.success(Code.GET_FORUM_OCCUPATION_PERSON_PREVIEW_OK, previews);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(Code.GET_FORUM_OCCUPATION_PERSON_PREVIEW_ERR, "获取职业探索人物帖子预览失败");
+        }
+    }
+
+    //获取职业探索人物帖子详细信息
+    @GetMapping("/occupation_person/details/{id}")
+    public Result getOccupationPersonDetail(@PathVariable Integer id) {
+        try {
+            OccupationPerson person = forumService.getOccupationPersonDetail(id);
+            if (person == null) {
+                throw new NullPointerException("forumService.getOccupationPersonDetail(id)==null");
+            }
+            return Result.success(Code.GET_FORUM_OCCUPATION_PERSON_DETAIL_OK, person);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(Code.GET_FORUM_OCCUPATION_PERSON_DETAIL_ERR, "获取职业探索帖子人物详细信息失败");
+        }
+    }
+
+    //点赞或收藏职业探索人物帖子
+    @GetMapping("/occupation_person")
+    public Result likeAndCollectOccupationPerson(@RequestParam Integer id, @RequestParam String type) {
+        Integer codeOK;
+        Integer codeERR;
+
+        //返回Integer类型数据，-1：操作失败 0：取消收藏/点赞成功 1：收藏/点赞成功
+        Integer status;
+
+        String jwt = req.getHeader("token");
+        Integer userId = JwtUtils.getId(jwt);
+
+        if (type.equals("like")) {
+            codeOK = Code.LIKE_OCCUPATION_PERSON_OK;
+            codeERR = Code.LIKE_OCCUPATION_PERSON_ERR;
+            status = forumService.likeOccupationPerson(userId, id);
+        } else if (type.equals("collect")) {
+            codeOK = Code.COLLECT_OCCUPATION_PERSON_OK;
+            codeERR = Code.COLLECT_OCCUPATION_PERSON_ERR;
+            status = forumService.collectOccupationPerson(userId, id);
+        } else {
+            return Result.error("类型错误！请选择like&collect！");
+        }
+
+        if (status.equals(-1)) {
+            return Result.error(codeOK, "operation failure!");
+        } else if (status.equals(0)) {
+            return Result.success(codeOK, "un" + type + " success！");
+        } else if (status.equals(1)) {
+            return Result.success(codeOK, type + " success!");
+        }
+        return Result.error(codeERR, "unknown error");
+    }
+
+    //获取帖子的评论
+    @GetMapping("/occupation_person/comment/{id}")
+    public Result getComments(@PathVariable String id) {
+        try {
+            List<ForumPostComment> forumPostComments = forumService.getCommentsById(id);
+            return Result.success(Code.GET_OCCUPATION_PERSON_COMMENT_OK, forumPostComments);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(Code.GET_OCCUPATION_PERSON_COMMENT_ERR, "获取评论失败");
+        }
+    }
+
+    //获取消息
+    @GetMapping("/message")
+    public Result getMessage() {
         try {
             String jwt = req.getHeader("token");
             Integer userId = JwtUtils.getId(jwt);
-            //获取点赞帖子的预览
-            List<ForumPostPreview> likeList = forumService.getLikeList(userId);
-            return Result.success(Code.GET_LIKES_OK, likeList);
+
+            List<ForumPostMessage> message = forumService.getMessage(userId);
+
+            return Result.success(Code.GET_FORUM_POST_MESSAGE_OK, message);
         } catch (Exception e) {
             e.printStackTrace();
-            return Result.error(Code.GET_LIKES_ERR, "操作失败");
+            return Result.error(Code.GET_FORUM_POST_MESSAGE_ERR, "获取消息出错");
         }
     }
-    //获取用户发布的帖子
-    @GetMapping("/published")
-    public Result getPublishedPostPreViews() {
+
+    //获取未读消息数
+    @GetMapping("/message_num")
+    public Result getMessageNum() {
         try {
             String jwt = req.getHeader("token");
             Integer userId = JwtUtils.getId(jwt);
-            //获取发布过的帖子的预览
-            List<ForumPostPreview> publishedPosts = forumService.getPublishedPosts(userId);
-            return Result.success(Code.GET_MY_POSTS_OK, publishedPosts);
+            Integer num = forumService.getMessageNum(userId);
+            return Result.success(Code.GET_FORUM_MESSAGE_NUM_OK, num);
         } catch (Exception e) {
             e.printStackTrace();
-            return Result.error(Code.GET_MY_POSTS_ERR, "操作失败");
+            return Result.error(Code.GET_FORUM_MESSAGE_NUM_ERR, "获取消息数失败");
         }
     }
-        //获取职业探索人物帖子预览
-        @GetMapping("/occupation_person/preview/{num}")
-        public Result getOccupationPersonPreviews(@PathVariable Integer num) {
-            try {
-                List<OccupationPersonPreview> previews = forumService.getOccupationPersonPreviews(num);
-                if (previews == null) {
-                    throw new NullPointerException("forumService.getOccupationPersonPreviews(num)==null");
-                }
-                return Result.success(Code.GET_FORUM_OCCUPATION_PERSON_PREVIEW_OK, previews);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return Result.error(Code.GET_FORUM_OCCUPATION_PERSON_PREVIEW_ERR, "获取职业探索人物帖子预览失败");
-            }
-        }
 
-        //获取职业探索人物帖子详细信息
-        @GetMapping("/occupation_person/details/{id}")
-        public Result getOccupationPersonDetail(@PathVariable Integer id) {
-            try {
-                OccupationPerson person = forumService.getOccupationPersonDetail(id);
-                if (person == null) {
-                    throw new NullPointerException("forumService.getOccupationPersonDetail(id)==null");
-                }
-                return Result.success(Code.GET_FORUM_OCCUPATION_PERSON_DETAIL_OK, person);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return Result.error(Code.GET_FORUM_OCCUPATION_PERSON_DETAIL_ERR, "获取职业探索帖子人物详细信息失败");
-            }
-        }
 
-        //点赞或收藏职业探索人物帖子
-        @GetMapping("/occupation_person")
-        public Result likeAndCollectOccupationPerson(@RequestParam Integer id, @RequestParam String type) {
-            Integer codeOK;
-            Integer codeERR;
-
-            //返回Integer类型数据，-1：操作失败 0：取消收藏/点赞成功 1：收藏/点赞成功
-            Integer status;
-
-            String jwt = req.getHeader("token");
-            Integer userId = JwtUtils.getId(jwt);
-
-            if (type.equals("like")) {
-                codeOK = Code.LIKE_OCCUPATION_PERSON_OK;
-                codeERR = Code.LIKE_OCCUPATION_PERSON_ERR;
-                status = forumService.likeOccupationPerson(userId,id);
-            } else if (type.equals("collect")) {
-                codeOK = Code.COLLECT_OCCUPATION_PERSON_OK;
-                codeERR = Code.COLLECT_OCCUPATION_PERSON_ERR;
-                status = forumService.collectOccupationPerson(userId,id);
-            } else {
-                return Result.error("类型错误！请选择like&collect！");
-            }
-
-            if (status.equals(-1)) {
-                return Result.error(codeOK, "operation failure!");
-            } else if (status.equals(0)) {
-                return Result.success(codeOK, "un" + type + " success！");
-            } else if (status.equals(1)) {
-                return Result.success(codeOK, type + " success!");
-            }
-            return Result.error(codeERR, "unknown error");
-        }
-
-        //获取帖子的评论
-        @GetMapping("/occupation_person/comment/{id}")
-        public Result getComments(@PathVariable String id){
-            try {
-                List<ForumPostComment> forumPostComments = forumService.getCommentsById(id);
-                return Result.success(Code.GET_OCCUPATION_PERSON_COMMENT_OK,forumPostComments);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return Result.error(Code.GET_OCCUPATION_PERSON_COMMENT_ERR,"获取评论失败");
-            }
-        }
-    }
+}

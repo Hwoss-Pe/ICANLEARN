@@ -14,10 +14,7 @@ import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class MatchServiceImpl implements MatchService {
@@ -32,22 +29,31 @@ public class MatchServiceImpl implements MatchService {
     @Autowired
     CartoonMapper cartoonMapper;
 
-//    更改后只需要匹配就行了，不需要mbti
     @Override
-    public List<User> matching(Integer id) {
+    public List<User> matching(Integer id, Map<String ,List<String>> map) {
+        List<User> filtration = new ArrayList<User>();
+        if(map.containsKey("mbti")){
+        // 如果里面包含mbti的话就进行mbti的匹配
+            List<User> userList = new ArrayList<>();
+            List<String>  list = map.get("mbti");
+            for (String mbti : list) {
+//                分别去获取对应的用户加上去再打乱
+                    List<User> tempUserList  = userService.getUsersByMBTI(mbti);
+                    //得到mbti的匹配的人，还需要进行过滤
+                    userList.addAll(tempUserList);
+                }
+             filtration = filtration(userList, id);
 
-
-        List<User> returnList = new ArrayList<User>();
-//      注意这里返回的List里面 是需要去掉好友和等待列表以及自己，
-
+        }
+        //如果不传参的话的得到，随机匹配
+        else {
             List<User> userList = userService.getUsers();
-            List<User> filtration = filtration(userList, id);
-//获取所有用户，走一次过滤后随机后添加
-            returnList.addAll(filtration);
-//            returnList = new ArrayList<>(userList.subList(0,5));
+            filtration = filtration(userList, id);
 
-            Collections.shuffle(returnList);
-        return returnList;
+        }
+//如果有传参就返回筛选mbti的list，不让就是获取直接返回
+            Collections.shuffle(filtration);
+        return filtration;
     }
 
     @Override

@@ -19,7 +19,9 @@ public class RedisConstant {
     public static final Long ROOM_EXPIRE_TIME = 7200000L;
 
     //匹配列表的Key开头
-    public static final String MATCH_USER_ID = "match_id:";
+    public static final String MATCH_RANDOM_ID = "match_random_id:"
+            ;
+    public static final String MATCH_DEFINE_ID = "match_define_id:";
 
     //=======================房间=======================
 

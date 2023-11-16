@@ -55,15 +55,24 @@ public class MatchController {
         return Result.success(Code.DEGREE_OK, matchDegree);
     }
 
-    //匹配
+    //随机匹配
     @PostMapping()
     public Result match(@RequestBody(required = false) Map<String, List<String>> map, HttpSession session) {
-//        这里看前端传的数据有多少个选择
+//        这里需要判断是不是mbti的匹配，对应redis的key不一样
+        if(map.containsKey("mbti")){
+         return getResult(map, session, RedisConstant.MATCH_DEFINE_ID);
+        }else {
+            return getResult(map, session, RedisConstant.MATCH_RANDOM_ID);
+        }
+    }
+        //获取实现需要返回的list
+    private Result getResult(Map<String, List<String>> map, HttpSession session,String redisKey) {
         String jwt = req.getHeader("token");
         Claims claims = JwtUtils.parseJwt(jwt);
         Integer id = (Integer) claims.get("id");
 
-        String matchKey = RedisConstant.MATCH_USER_ID + id;
+//        这里需要进行两个redis实现
+        String matchKey = redisKey + id;
         if (!map.containsKey("status")) {
             return Result.error("缺少请求状态码");
         }
@@ -71,14 +80,13 @@ public class MatchController {
 //        这里如果是第一次点击就要1，其他都是0。因为要设置session
         if (statusList.get(0).equals("1")) {
             //如果是第一次进行操作
-            List<User> resultList = matchService.matching(id);
+            List<User> resultList = matchService.matching(id, map);
             session.setAttribute("resultList", resultList);
             //这里返回的就是直接处理过后数据
 
             redisUtil.lSetList(matchKey, resultList, RedisConstant.MATCH_EXPIRE_TIME);
         }
-
-//        long size = RedisUtil.sGetSetSize(matchKey);
+        ///获取当前缓存的数据
         long size = redisUtil.lGetListSize(matchKey);
 
         List<User> userList;
@@ -99,13 +107,21 @@ public class MatchController {
     }
 
     //随机匹配或者刷新
-    @PostMapping("/1")
-    public Result matchOne() {
+    @PostMapping("/{num}")
+    public Result matchOne(@PathVariable Integer num) {
         String jwt = req.getHeader("token");
         Claims claims = JwtUtils.parseJwt(jwt);
         Integer id = (Integer) claims.get("id");
+        if (num==1){
+            return getResult(id,RedisConstant.MATCH_RANDOM_ID);
+        }else {
+            return getResult(id,RedisConstant.MATCH_DEFINE_ID);
+        }
 
-        String matchKey = RedisConstant.MATCH_USER_ID + id;
+    }
+
+    private Result getResult(Integer id,String RedisKey) {
+        String matchKey = RedisKey + id;
 //        这里看前端传的数据有多少个选择
         if (!redisUtil.hasKey(matchKey) || redisUtil.lGetListSize(matchKey) == 0) {
             return Result.error(Code.MATCH_USER_ERR, "获取用户异常");
@@ -123,20 +139,23 @@ public class MatchController {
 
     //清除匹配缓存
     @GetMapping()
-    public Result match(HttpSession session) {
+    public Result matchByCartoon(HttpSession session) {
         // 清除上一次匹配的缓存
 //        这里要做的是去重新放进session里面
         String jwt = req.getHeader("token");
         Integer id = JwtUtils.getId(jwt);
-        String matchKey = RedisConstant.MATCH_USER_ID + id;
-        if (redisUtil.hasKey(matchKey)) {
-
-            List<User> userList = (List<User>) session.getAttribute("resultList");
-            redisUtil.lRemoveAll(matchKey);
-
-            redisUtil.lSetList(matchKey, userList, RedisConstant.MATCH_EXPIRE_TIME);
+        String matchRandomKey = RedisConstant.MATCH_RANDOM_ID + id;
+        String matchDefineKey = RedisConstant.MATCH_DEFINE_ID + id;
+        List<User> userList = (List<User>) session.getAttribute("resultList");
+        if (redisUtil.hasKey(matchRandomKey)) {
+            redisUtil.lRemoveAll(matchRandomKey);
+            redisUtil.lSetList(matchRandomKey, userList, RedisConstant.MATCH_EXPIRE_TIME);
+        }else  if (redisUtil.hasKey(matchDefineKey)){
+            redisUtil.lRemoveAll(matchDefineKey);
+            redisUtil.lSetList(matchDefineKey, userList, RedisConstant.MATCH_EXPIRE_TIME);
         }
         log.info("清除匹配缓存");
         return Result.success();
     }
+
 }

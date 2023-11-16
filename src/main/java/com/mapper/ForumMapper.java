@@ -58,15 +58,15 @@ public interface ForumMapper {
     void deletePostLike(Integer userId, Integer postId);
 
     //根据id查询收藏列表
-    @Select("select user_id from post_collections where post_id = #{postId}")
+    @Select("select user_id from post_collection where post_id = #{postId}")
     List<Integer> selectCollectUserIdByPostId(String postId);
 
     //删除指定postId与userId对应的收藏数据
-    @Delete("delete from post_collections where user_id = #{userId} and post_id = #{postId}")
+    @Delete("delete from post_collection where user_id = #{userId} and post_id = #{postId}")
     void deletePostCollect(Integer userId, Integer postId);
 
     //新增收藏表数据
-    @Insert("insert into post_collections(post_id, user_id, publisher_id) VALUES (#{postId},#{userId},#{publisherId})")
+    @Insert("insert into post_collection(post_id, user_id, publisher_id) VALUES (#{postId},#{userId},#{publisherId})")
     void insertForumPostCollect(ForumPostCollect data);
 
     //更新帖子的收藏数
@@ -74,7 +74,7 @@ public interface ForumMapper {
     void updateForumPostCollectNum(Integer postId, Integer num);
 
     //查询用户收藏的帖子表
-    @Select("select p.id,p.title,p.labels,p.publisher_id,p.create_time,p.like_num,p.collect_num from post_collections pc " +
+    @Select("select p.id,p.title,p.labels,p.publisher_id,p.create_time,p.like_num,p.collect_num from post_collection pc " +
             "join posts p on pc.post_id = p.id " +
             "where pc.user_id = #{userId} and p.visible_scope != -1")
     List<ForumPostPreview> selectCollectPostPreviewsByUserId(Integer userId);
@@ -84,8 +84,8 @@ public interface ForumMapper {
     List<ForumPostComment> selectForumPostCommentsByPostId(String postId);
 
     //查询id对应评论的评论者id
-    @Select("select user_id from post_comments where id = #{commentId}")
-    Integer selectCommentUserIdByCommentId(String commentId);
+    @Select("select id, post_id, user_id, content, create_time, parent_comment_id from post_comments where id = #{commentId}")
+    ForumPostComment selectCommentUserIdByCommentId(String commentId);
 
     //新增评论
     @Insert("insert into post_comments(id, post_id, user_id, content, parent_comment_id) values(#{id},#{postId},#{userId},#{content},#{parentCommentId})")
@@ -136,11 +136,11 @@ public interface ForumMapper {
     void insertOccupationPersonLike(Integer userId, Integer id);
 
     //查询收藏表
-    @Select("select id from post_collections where user_id = #{userId} and post_id = #{id}")
+    @Select("select id from post_collection where user_id = #{userId} and post_id = #{id}")
     Integer selectOccupationPersonCollectById(Integer userId, Integer id);
 
     //加入收藏表
-    @Insert("insert into post_collections(user_id, post_id) values (#{userId},#{id})")
+    @Insert("insert into post_collection(user_id, post_id) values (#{userId},#{id})")
     void insertOccupationPersonCollect(Integer userId, Integer id);
 
     //点赞
@@ -150,6 +150,32 @@ public interface ForumMapper {
     //收藏
     @Update("update occupation_person set collect_num = collect_num + #{num} where id = #{id}")
     void updateOccupationPersonCollect(Integer num,Integer id);
+
+    //存入信息表
+    @Insert("insert into post_message(user_id, user_name, post_id, publisher_id,title, type) " +
+            "VALUES (#{data.userId}," +
+            "(select username from user where id = #{data.userId})," +
+            "#{data.postId}," +
+            "(select publisher_id from posts where id = #{data.postId})," +
+            "(select title from posts where id = #{data.postId})," +
+            "#{type})")
+    void insertForumMessage(Forum data,String type);
+
+    //查询信息
+    @Select("select id, user_id, user_name, post_id, publisher_id, type from post_message where publisher_id = #{id}")
+    List<ForumPostMessage> selectForumPostMessageByPublisherId(Integer id);
+
+    //删除信息表数据
+    @Delete("delete from post_message where publisher_id = #{userId}")
+    void deleteForumPostMessageById(Integer userId);
+
+    //删除单条信息
+    @Delete("delete from post_message where post_id = #{postId} and user_id = #{userId}")
+    void deleteMessageByPostIdAndUserId(Integer postId,Integer userId);
+
+    //获取消息数
+    @Select("select count(id) from post_message where publisher_id = #{userId}")
+    Integer selectMessageNumByUserId(Integer userId);
 
 
 //    //根据id列表查询帖子预览
